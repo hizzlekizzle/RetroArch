@@ -4,9 +4,6 @@ on:
   create:
     tags:
       - v*
-  watch:
-    types: [started]
-    if: github.actor == github.event.repository.owner.login
 
 jobs:
   job1:
