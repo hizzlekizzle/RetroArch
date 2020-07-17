@@ -24,7 +24,6 @@ jobs:
       run: |
         msys2do pacman --noconfirm -Su
         msys2do pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw mingw-w64-x86_64-qt5  mingw-w64-x86_64-openssl p7zip
-        msys2do wget https://sourceforge.net/projects/mingw-w64-archlinux/files/x86_64/mingw-w64-nvidia-cg-toolkit-3.1-2-any_4.pkg.tar.xz/download -O mingw-w64-x86_64-nvidia-cg-toolkit-3.1-2-any.pkg.tar.xz && msys2do pacman -U mingw-w64-x86_64-nvidia-cg-toolkit-3.1-2-any.pkg.tar.xz
     - name: Build RetroArch
       run: |
         msys2do ./configure
