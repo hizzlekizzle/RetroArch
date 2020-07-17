@@ -23,13 +23,13 @@ jobs:
     - name: Fetch dependencies
       run: |
         msys2do pacman --noconfirm -Su
-        msys2do pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw mingw-w64-x86_64-qt5  mingw-w64-x86_64-openssl p7zip
+        msys2do pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw p7zip
     - name: Build RetroArch
       run: |
         msys2do ./configure
         msys2do make -j8
     - name: Package libs
-      run: msys2do for i in $(seq 3); do for bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2); do cp -vu "$bin" . ; done; done
+      run: for i in $(seq 3); msys2do for bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2); msys2do cp -vu "$bin" . ; done; done
     - name: Zip the libs
       run: msys2do 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
     - name: Zip it up!
