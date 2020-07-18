@@ -19,23 +19,24 @@ jobs:
       with:
         ref: ${{ steps.get_tag_name.outputs.VERSION }}
     - name: Fetch dependencies
+      shell: powershell
       run: |
-        pacman --noconfirm -Su
-        pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw p7zip
+        msys2do pacman --noconfirm -Su
+        msys2do pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw p7zip
     - name: Configure the build
-      run: ./configure
+      run: .msys2do ./configure
     - name: Build
-      run: make -j8
+      run: msys2do make -j8
     - name: Create working directory
       run: mkdir working_dir
     - name: Make asset dirs
       working-directory: working_dir
       run: |
-        mkdir assets
-        mkdir cores
-        mkdir shaders
-        mkdir database
-        mkdir cheats
+        msys2do mkdir assets
+        msys2do mkdir cores
+        msys2do mkdir shaders
+        msys2do mkdir database
+        msys2do mkdir cheats
 #    - name: Fetch assets
 #      working-directory: working_dir/assets
 #      run: |
@@ -45,22 +46,22 @@ jobs:
     - name: Fetch overlays
       working-directory: working_dir
       run: |
-        git clone https://github.com/libretro/common-overlays.git
-        mv common-overlays overlays
+        msys2do git clone https://github.com/libretro/common-overlays.git
+        msys2do mv common-overlays overlays
     - name: Fetch autoconfigs
       working-directory: working_dir
       run: |
-        git clone https://github.com/libretro/retroarch-joypad-autoconfig.git
-        mv retroarch-joypad-autoconfig autoconfig
+        msys2do git clone https://github.com/libretro/retroarch-joypad-autoconfig.git
+        msys2do mv retroarch-joypad-autoconfig autoconfig
     - name: Fetch shaders
       working-directory: working_dir/shaders
       run: |
-        git clone https://github.com/libretro/glsl-shaders.git
-        mv glsl-shaders shaders_glsl
-        git clone https://github.com/libretro/slang-shaders.git
-        mv slang-shaders shaders_slang
-        git clone https://github.com/libretro/common-shaders.git
-        mv common-shaders shaders_cg
+        msys2do git clone https://github.com/libretro/glsl-shaders.git
+        msys2do mv glsl-shaders shaders_glsl
+        msys2do git clone https://github.com/libretro/slang-shaders.git
+        msys2do mv slang-shaders shaders_slang
+        msys2do git clone https://github.com/libretro/common-shaders.git
+        msys2do mv common-shaders shaders_cg
 #    - name: Fetch databases
 #      working-directory: working_dir/database
 #      run: |
@@ -80,7 +81,7 @@ jobs:
 #        msys2do unzip info.zip
 #        msys2do rm info.zip
     - name: Gather the libs
-      run: ForEach ($l in $(ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
+      run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
     - name: Zip just the libs
       run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
     - name: Move executables and libs to working dir
