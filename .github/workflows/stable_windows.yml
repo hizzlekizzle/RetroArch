@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: numworks/setup-msys2@v1
       with:
-        update: true
+        update: false
         path-type: inherit
         msystem: MINGW64
     - run: msys2do pacman --noconfirm -Rc dash
