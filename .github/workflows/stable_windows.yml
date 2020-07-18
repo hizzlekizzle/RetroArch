@@ -29,12 +29,12 @@ jobs:
         msys2do ./configure
         msys2do make -j8
     - name: Package libs
-      run: for i in $(seq 3); msys2do for bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2); msys2do cp -vu "$bin" . ; done; done
-    - name: Zip the libs
-      run: msys2do 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
-    - name: Zip it up!
-      run: msys2do 7z a RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z *.exe *.dll
-    - name: Upload RetroArch release
+      run: ForEach ($i in $(seq 3)){ ForEach ($bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2)){ cp -vu "$bin" . ; } }
+    - name: Zip just the libs
+      run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
+    - name: Zip the full release
+      run: 7z a RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z *.exe *.dll
+    - name: Upload RetroArch release bundle
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
