@@ -29,7 +29,7 @@ jobs:
         msys2do ./configure
         msys2do make -j8
     - name: Package libs
-      run: ForEach ($i in $(seq 3)){ ForEach ($bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2)){ cp -vu "$bin" . ; } }
+      run: msys2do for i in $(seq 3); do for bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2); do cp -vu "$bin" . ; done ; done
     - name: Zip just the libs
       run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
     - name: Zip the full release
