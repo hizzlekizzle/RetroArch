@@ -30,9 +30,9 @@ jobs:
         msys2do make -j8
     - name: Create working directory
       run: mkdir working_dir
-    - name: Make dirs
+    - name: Make asset dirs
       working-directory: working_dir
-      run: mkdir assets cores shaders database cheats
+      run: mkdir assets && mkdir cores && mkdir shaders && mkdir database && mkdir cheats
     - name: Fetch assets
       working-directory: working_dir
       run: cd assets && wget https://buildbot.libretro.com/assets/frontend/assets.zip && unzip assets.zip && rm assets.zip
