@@ -82,7 +82,7 @@ jobs:
 #        msys2do unzip info.zip
 #        msys2do rm info.zip
     - name: Gather the libs
-      run: msys2do for l in $(ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3);do [cp "$l" ./working_dir]; done
+      run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
     - name: Zip just the libs
       working-directory: working_dir/cores
       run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
