@@ -82,7 +82,7 @@ jobs:
         msys2do unzip info.zip
         msys2do rm info.zip
     - name: Gather the libs
-      run: msys2do ForEach( $i in $(seq 3)){ ForEach( $bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2)){ cp -vu "$bin" . } }
+      run: msys2do ForEach( '$i' in '$(seq 3)'){ ForEach( '$bin' in '$(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2)'){ cp -vu "$bin" . } }
     - name: Zip just the libs
       run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
     - name: Move executables and libs to working dir
