@@ -28,17 +28,46 @@ jobs:
       run: |
         msys2do ./configure
         msys2do make -j8
-    - name: Package libs
-      run: msys2do for i in $(seq 3); do for bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2); do cp -vu "$bin" . ; done ; done
+    - name: Create working directory
+      run: mkdir working_dir
+    - name: Make dirs
+      working-directory: working_dir
+      run: mkdir assets cores shaders database cheats
+    - name: Fetch assets
+      working-directory: working_dir
+      run: cd assets && wget https://buildbot.libretro.com/assets/frontend/assets.zip && unzip assets.zip && rm assets.zip
+    - name: Fetch overlays
+      working-directory: working_dir
+      run: git clone https://github.com/libretro/common-overlays.git && mv common-overlays overlays
+    - name: Fetch autoconfigs
+      working-directory: working_dir
+      run: git clone https://github.com/libretro/retroarch-joypad-autoconfig.git && mv retroarch-joypad-autoconfig autoconfig
+    - name: Fetch shaders
+      working-directory: working_dir
+      run: cd shaders && git clone https://github.com/libretro/glsl-shaders.git && git clone https://github.com/libretro/slang-shaders.git
+    - name: Fetch databases
+      working-directory: working_dir
+      run: cd database && wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip && unzip database-rdb.zip && rm database-rdb.zip
+    - name: Fetch cheats
+      working-directory: working_dir
+      run: cd cheats && wget https://buildbot.libretro.com/assets/frontend/cheats.zip && unzip cheats.zip && rm cheats.zip
+    - name: Fetch core info
+      working-directory: working_dir
+      run: cd cores && wget https://buildbot.libretro.com/assets/frontend/info.zip && unzip info.zip && rm info.zip
+    - name: Gather the libs
+      run: msys2do for( $i in $(seq 3)){ for( $bin in $(ntldd -R *exe | grep -i mingw | cut -d">" -f2 | cut -d" " -f2)){ cp -vu "$bin" . } }
     - name: Zip just the libs
       run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
+    - name: Move executables and libs to working dir
+      run: mv *.exe working_dir && mv *.dll working_dir
     - name: Zip the full release
-      run: 7z a RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z *.exe *.dll
+      working-directory: working_dir
+      run: 7z a RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z *
     - name: Upload RetroArch release bundle
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z
+        file: working_dir/RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z
         tag: ${{ steps.get_tag_name.outputs.VERSION }}
         asset_name: RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z
         overwrite: true
