@@ -83,33 +83,25 @@ jobs:
       run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
     - name: Zip just the libs
       working-directory: working_dir/cores
-      env:
-        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       run: 7z a redist_libs-$SOURCE_TAG.7z *.dll
     - name: Move executables and libs to working dir
       run: mv *.exe working_dir
     - name: Zip the full release
       working-directory: working_dir
-      env:
-        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
-      run: 7z a RetroArch-Win-x86_64_$SOURCE_TAG.7z *
+      run: 7z a RetroArch-Win-x86_64_${{ steps.tag_name.outputs.SOURCE_TAG }}.7z *
     - name: Upload RetroArch release bundle
       uses: svenstaro/upload-release-action@v2
-      env:
-        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: working_dir/RetroArch-Win-x86_64_$SOURCE_TAG.7z
+        file: working_dir/RetroArch-Win-x86_64_${{ steps.tag_name.outputs.SOURCE_TAG }}.7z
         tag: $SOURCE_TAG
-        asset_name: RetroArch-Win-x86_64_$SOURCE_TAG.7z
+        asset_name: RetroArch-Win-x86_64_${{ steps.tag_name.outputs.SOURCE_TAG }}.7z
         overwrite: true
     - name: Upload redist libs
       uses: svenstaro/upload-release-action@v2
-      env:
-        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: redist_libs-$SOURCE_TAG.7z
+        file: redist_libs-${{ steps.tag_name.outputs.SOURCE_TAG }}.7z
         tag: $SOURCE_TAG
-        asset_name: redist_libs-$SOURCE_TAG.7z
+        asset_name: redist_libs-${{ steps.tag_name.outputs.SOURCE_TAG }}.7z
         overwrite: true
