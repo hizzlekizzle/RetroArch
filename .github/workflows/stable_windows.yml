@@ -12,7 +12,8 @@ jobs:
 
     steps:
     - name: Get tag name
-      run: $SOURCE_TAG = ${env:GITHUB_REF} -replace ‘refs/tags/’, ‘’ && echo “::set-env name=SOURCE_TAG::$SOURCE_TAG”
+      id: tag_name
+      run:  echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     - uses: actions/checkout@v2
     - uses: numworks/setup-msys2@v1
       with:
@@ -82,14 +83,20 @@ jobs:
       run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
     - name: Zip just the libs
       working-directory: working_dir/cores
+      env:
+        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       run: 7z a redist_libs-$SOURCE_TAG.7z *.dll
     - name: Move executables and libs to working dir
       run: mv *.exe working_dir
     - name: Zip the full release
       working-directory: working_dir
+      env:
+        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       run: 7z a RetroArch-Win-x86_64_$SOURCE_TAG.7z *
     - name: Upload RetroArch release bundle
       uses: svenstaro/upload-release-action@v2
+      env:
+        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: working_dir/RetroArch-Win-x86_64_$SOURCE_TAG.7z
@@ -98,6 +105,8 @@ jobs:
         overwrite: true
     - name: Upload redist libs
       uses: svenstaro/upload-release-action@v2
+      env:
+        SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: redist_libs-$SOURCE_TAG.7z
