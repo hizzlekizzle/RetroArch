@@ -27,7 +27,7 @@ jobs:
     - name: Configure the build
       run: ./configure --disable-ffmpeg --disable-vulkan --disable-spirv_cross --disable-builtinglslang
     - name: Build
-      run: msys2do make -j8
+      run: make -j8
     - name: Create working directory
       run: msys2do mkdir working_dir
     - name: Make asset dirs
