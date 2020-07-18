@@ -26,7 +26,7 @@ jobs:
         msys2do pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw p7zip
     - name: Build RetroArch
       run: |
-        msys2do ./configure
+        msys2do ./configure --disable-ffmpeg --disable-vulkan --disable-spirv_cross --disable-builtinglslang
         msys2do make -j8
     - name: Create working directory
       run: msys2do mkdir working_dir
@@ -38,12 +38,12 @@ jobs:
         msys2do mkdir shaders
         msys2do mkdir database
         msys2do mkdir cheats
-    - name: Fetch assets
-      working-directory: working_dir/assets
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip
-        msys2do unzip assets.zip
-        msys2do rm assets.zip
+#    - name: Fetch assets
+#      working-directory: working_dir/assets
+#      run: |
+#        msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip
+#        msys2do unzip assets.zip
+#        msys2do rm assets.zip
     - name: Fetch overlays
       working-directory: working_dir
       run: |
@@ -63,30 +63,31 @@ jobs:
         msys2do mv slang-shaders shaders_slang
         msys2do git clone https://github.com/libretro/common-shaders.git
         msys2do mv common-shaders shaders_cg
-    - name: Fetch databases
-      working-directory: working_dir/database
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip
-        msys2do unzip database-rdb.zip
-        msys2do rm database-rdb.zip
-    - name: Fetch cheats
-      working-directory: working_dir/cheats
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip
-        msys2do unzip cheats.zip
-        msys2do rm cheats.zip
-    - name: Fetch core info
-      working-directory: working_dir/cores
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip
-        msys2do unzip info.zip
-        msys2do rm info.zip
+#    - name: Fetch databases
+#      working-directory: working_dir/database
+#      run: |
+#        msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip
+#        msys2do unzip database-rdb.zip
+#        msys2do rm database-rdb.zip
+#    - name: Fetch cheats
+#      working-directory: working_dir/cheats
+#      run: |
+#        msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip
+#        msys2do unzip cheats.zip
+#        msys2do rm cheats.zip
+#    - name: Fetch core info
+#      working-directory: working_dir/cores
+#      run: |
+#        msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip
+#        msys2do unzip info.zip
+#        msys2do rm info.zip
     - name: Gather the libs
-      run: msys2do for l in $(ntldd.exe -R *.exe|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3);do cp $l .;done
+      run: msys2do for l in $(ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3);do cp "$l" ./working_dir;done
     - name: Zip just the libs
+      working-directory: working_dir/cores
       run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
     - name: Move executables and libs to working dir
-      run: mv *.exe working_dir && mv *.dll working_dir
+      run: mv *.exe working_dir
     - name: Zip the full release
       working-directory: working_dir
       run: 7z a RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z *
