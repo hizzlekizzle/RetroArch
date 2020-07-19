@@ -37,9 +37,9 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: RetroArch-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
+        file: RetroArch-Linux-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
         tag: ${{ steps.get_tag_name.outputs.VERSION }}
-        asset_name: RetroArch-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
+        asset_name: RetroArch-Linux-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
         overwrite: true
 
   job2:
@@ -84,12 +84,12 @@ jobs:
       run: cd cores && wget https://buildbot.libretro.com/assets/frontend/info.zip && unzip info.zip && rm info.zip
     - name: Zip it up!
       working-directory: working_dir
-      run: 7z a RetroArch-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z *
+      run: 7z a RetroArch-Linux-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z *
     - name: Upload assets bundle
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: working_dir/RetroArch-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z
+        file: working_dir/RetroArch-Linux-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z
         tag: ${{ steps.get_tag_name.outputs.VERSION }}
-        asset_name: RetroArch-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z
+        asset_name: RetroArch-Linux-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z
         overwrite: true
