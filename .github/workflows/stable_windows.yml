@@ -56,6 +56,8 @@ jobs:
       run: msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip && msys2do unzip info.zip && msys2do rm info.zip
     - name: Gather the libs
       run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
+    - name: Remove packages to free up disk space
+      run: msys2do pacman -Rsu --noconfirm mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw mingw-w64-i686-qt5 mingw-w64-i686-openssl
     - name: Get tag name
       id: get_tag_name
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
