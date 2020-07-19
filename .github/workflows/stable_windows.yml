@@ -14,7 +14,7 @@ jobs:
     - uses: numworks/setup-msys2@v1
       with:
         msystem: MINGW64
-    - run: msys2do pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw p7zip
+    - run: msys2do pacman -S --noconfirm --needed wget git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-ntldd mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libxml2 mingw-w64-x86_64-freetype mingw-w64-x86_64-python3 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-drmingw mingw-w64-i686-qt5 mingw-w64-i686-openssl p7zip
     - uses: actions/checkout@v2
     - name: Configure
       run: msys2do ./configure
@@ -30,12 +30,12 @@ jobs:
         msys2do mkdir shaders
         msys2do mkdir database
         msys2do mkdir cheats
-#    - name: Fetch assets
-#      working-directory: working_dir/assets
-#      run: |
-#        msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip
-#        msys2do unzip assets.zip
-#        msys2do rm assets.zip
+    - name: Fetch assets
+      working-directory: working_dir/assets
+      run: |
+        msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip
+        msys2do unzip assets.zip
+        msys2do rm assets.zip
     - name: Fetch overlays
       working-directory: working_dir
       run: |
@@ -55,24 +55,24 @@ jobs:
         msys2do mv slang-shaders shaders_slang
         msys2do git clone https://github.com/libretro/common-shaders.git
         msys2do mv common-shaders shaders_cg
-#    - name: Fetch databases
-#      working-directory: working_dir/database
-#      run: |
-#        msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip
-#        msys2do unzip database-rdb.zip
-#        msys2do rm database-rdb.zip
-#    - name: Fetch cheats
-#      working-directory: working_dir/cheats
-#      run: |
-#        msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip
-#        msys2do unzip cheats.zip
-#        msys2do rm cheats.zip
-#    - name: Fetch core info
-#      working-directory: working_dir/cores
-#      run: |
-#        msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip
-#        msys2do unzip info.zip
-#        msys2do rm info.zip
+    - name: Fetch databases
+      working-directory: working_dir/database
+      run: |
+        msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip
+        msys2do unzip database-rdb.zip
+        msys2do rm database-rdb.zip
+    - name: Fetch cheats
+      working-directory: working_dir/cheats
+      run: |
+        msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip
+        msys2do unzip cheats.zip
+        msys2do rm cheats.zip
+    - name: Fetch core info
+      working-directory: working_dir/cores
+      run: |
+        msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip
+        msys2do unzip info.zip
+        msys2do rm info.zip
     - name: Gather the libs
       run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
     - name: Get tag name
@@ -81,18 +81,20 @@ jobs:
       shell: bash
     - name: Zip just the libs
       run: 7z a redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z *.dll
+    - name: Zip just the executables
+      run: 7z a Update-Pack-${{ steps.get_tag_name.outputs.VERSION }}.7z *.exe *dll
     - name: Move executables and libs to working dir
       run: mv *.exe working_dir && mv *.dll working_dir
     - name: Zip the full release
       working-directory: working_dir
-      run: 7z a RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z *
+      run: 7z a RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}_Full.7z *
     - name: Upload RetroArch release bundle
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: working_dir/RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z
+        file: working_dir/RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}_Full.7z
         tag: ${{ steps.get_tag_name.outputs.VERSION }}
-        asset_name: RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}.7z
+        asset_name: RetroArch-Win-x86_64_${{ steps.get_tag_name.outputs.VERSION }}_Full.7z
         overwrite: true
     - name: Upload redist libs
       uses: svenstaro/upload-release-action@v2
@@ -101,4 +103,12 @@ jobs:
         file: redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z
         tag: ${{ steps.get_tag_name.outputs.VERSION }}
         asset_name: redist_libs-${{ steps.get_tag_name.outputs.VERSION }}.7z
+        overwrite: true
+    - name: Upload Update Pack
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: Update-Pack-${{ steps.get_tag_name.outputs.VERSION }}.7z
+        tag: ${{ steps.get_tag_name.outputs.VERSION }}
+        asset_name: Update-Pack-${{ steps.get_tag_name.outputs.VERSION }}.7z
         overwrite: true
