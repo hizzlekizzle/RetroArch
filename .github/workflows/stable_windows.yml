@@ -32,7 +32,7 @@ jobs:
         msys2do mkdir info
     - name: Fetch assets
       working-directory: working_dir/assets
-      run: msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip && msys2do unzip assets.zip && msys2do rm assets.zip
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip && msys2do 7z e assets.zip && msys2do rm assets.zip
     - name: Fetch overlays
       working-directory: working_dir
       run: msys2do git clone https://github.com/libretro/common-overlays.git && msys2do mv common-overlays overlays
@@ -47,13 +47,13 @@ jobs:
         msys2do git clone https://github.com/libretro/common-shaders.git && msys2do mv common-shaders shaders_cg
     - name: Fetch databases
       working-directory: working_dir/database
-      run: msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip && msys2do unzip database-rdb.zip && msys2do rm database-rdb.zip
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip && msys2do 7z e database-rdb.zip && msys2do rm database-rdb.zip
     - name: Fetch cheats
       working-directory: working_dir/cheats
-      run: msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip && msys2do unzip cheats.zip && msys2do rm cheats.zip
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip && msys2do 7z e cheats.zip && msys2do rm cheats.zip
     - name: Fetch core info
       working-directory: working_dir/info
-      run: msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip && msys2do unzip info.zip && msys2do rm info.zip
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip && msys2do 7z e info.zip && msys2do rm info.zip
     - name: Gather the libs
       run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
     - name: Get tag name
