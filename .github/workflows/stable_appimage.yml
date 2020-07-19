@@ -84,7 +84,7 @@ jobs:
       run: cd cores && wget https://buildbot.libretro.com/assets/frontend/info.zip && unzip info.zip && rm info.zip
     - name: Zip it up!
       working-directory: working_dir
-      run: 7z a RetroArch-Linux-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z *
+      run: 7z a -mx=9 RetroArch-Linux-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z *
     - name: Upload assets bundle
       uses: svenstaro/upload-release-action@v2
       with:
