@@ -26,53 +26,34 @@ jobs:
       working-directory: working_dir
       run: |
         msys2do mkdir assets
-        msys2do mkdir cores
         msys2do mkdir shaders
         msys2do mkdir database
         msys2do mkdir cheats
+        msys2do mkdir info
     - name: Fetch assets
       working-directory: working_dir/assets
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip
-        msys2do unzip assets.zip
-        msys2do rm assets.zip
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/assets.zip && msys2do unzip assets.zip && msys2do rm assets.zip
     - name: Fetch overlays
       working-directory: working_dir
-      run: |
-        msys2do git clone https://github.com/libretro/common-overlays.git
-        msys2do mv common-overlays overlays
+      run: msys2do git clone https://github.com/libretro/common-overlays.git && msys2do mv common-overlays overlays
     - name: Fetch autoconfigs
       working-directory: working_dir
-      run: |
-        msys2do git clone https://github.com/libretro/retroarch-joypad-autoconfig.git
-        msys2do mv retroarch-joypad-autoconfig autoconfig
+      run: msys2do git clone https://github.com/libretro/retroarch-joypad-autoconfig.git && msys2do mv retroarch-joypad-autoconfig autoconfig
     - name: Fetch shaders
       working-directory: working_dir/shaders
       run: |
-        msys2do git clone https://github.com/libretro/glsl-shaders.git
-        msys2do mv glsl-shaders shaders_glsl
-        msys2do git clone https://github.com/libretro/slang-shaders.git
-        msys2do mv slang-shaders shaders_slang
-        msys2do git clone https://github.com/libretro/common-shaders.git
-        msys2do mv common-shaders shaders_cg
+        msys2do git clone https://github.com/libretro/glsl-shaders.git && msys2do mv glsl-shaders shaders_glsl
+        msys2do git clone https://github.com/libretro/slang-shaders.git && msys2do mv slang-shaders shaders_slang
+        msys2do git clone https://github.com/libretro/common-shaders.git && msys2do mv common-shaders shaders_cg
     - name: Fetch databases
       working-directory: working_dir/database
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip
-        msys2do unzip database-rdb.zip
-        msys2do rm database-rdb.zip
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/database-rdb.zip && msys2do unzip database-rdb.zip && msys2do rm database-rdb.zip
     - name: Fetch cheats
       working-directory: working_dir/cheats
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip
-        msys2do unzip cheats.zip
-        msys2do rm cheats.zip
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/cheats.zip && msys2do unzip cheats.zip && msys2do rm cheats.zip
     - name: Fetch core info
-      working-directory: working_dir/cores
-      run: |
-        msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip
-        msys2do unzip info.zip
-        msys2do rm info.zip
+      working-directory: working_dir/info
+      run: msys2do wget https://buildbot.libretro.com/assets/frontend/info.zip && msys2do unzip info.zip && msys2do rm info.zip
     - name: Gather the libs
       run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" ./working_dir}
     - name: Get tag name
