@@ -47,7 +47,7 @@ jobs:
       run: git clone https://github.com/libretro/libretro-database.git && mv libretro-database/rdb ./database && mv libretro-database/cht ./cheats && rm -rf libretro-database
     - name: Bundle assets
       working-directory: working_dir
-      run: 7z a -mx=9 RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z *
+      run: 7z a -mx=9 ../RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z *
     - name: Upload Linux AppImage assets bundle
       uses: svenstaro/upload-release-action@v2
       with:
