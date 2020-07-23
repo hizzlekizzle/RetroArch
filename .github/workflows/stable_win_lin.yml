@@ -35,9 +35,9 @@ jobs:
     - name: Fetch libretro-super repo and isolate info files
       working-directory: working_dir
       run: git clone https://github.com/libretro/libretro-super.git && mv libretro-super/dist/info ./ && rm -rf libretro-super
-    - run: mkdir shaders
+    - run: mkdir working_dir/shaders
     - name: Fetch shader repos
-      working-directory: shaders
+      working-directory: working_dir/shaders
       run: |
         git clone https://github.com/libretro/common-shaders.git && mv common-shaders shaders_cg && rm -rf shaders_cg/.git
         git clone https://github.com/libretro/glsl-shaders.git && mv glsl-shaders shaders_glsl && rm -rf shaders_glsl/.git
