@@ -80,7 +80,7 @@ jobs:
     - name: Fetch linuxdeploy
       run: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage && chmod +x linuxdeploy-x86_64.AppImage
     - name: Build RetroArch
-      run: mkdir AppDir && ./configure --prefix=/usr && make -j8 && make install DESTDIR=AppDir prefix=/usr && ../linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage && mv RetroArch*.AppImage RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
+      run: mkdir AppDir && ./configure --prefix=/usr && make -j8 && make install DESTDIR=AppDir prefix=/usr && ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage && mv RetroArch*.AppImage RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
     - name: Upload RetroArch AppImage
       uses: svenstaro/upload-release-action@v2
       with:
