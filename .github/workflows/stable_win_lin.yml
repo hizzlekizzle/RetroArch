@@ -53,7 +53,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z
-        tag: Nightlies
+        tag: ${{ steps.get_tag_name.outputs.VERSION }}
         asset_name: RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z
         overwrite: true
     - run: mv RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage.config.7z assets.7z
@@ -86,7 +86,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
-        tag: Nightlies
+        tag: ${{ steps.get_tag_name.outputs.VERSION }}
         asset_name: RetroArch-Linux-x86_64-${{ steps.get_tag_name.outputs.VERSION }}.AppImage
         overwrite: true
         
@@ -133,7 +133,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: working_dir/RetroArch-Win-x86_64-${{ steps.get_tag_name.outputs.VERSION }}_Update-Pack.7z
-        tag: Nightlies
+        tag: ${{ steps.get_tag_name.outputs.VERSION }}
         asset_name: RetroArch-Win-x86_64-${{ steps.get_tag_name.outputs.VERSION }}_Update-Pack.7z
         overwrite: true
     - name: Download assets package from previous job
@@ -151,7 +151,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: working_dir/RetroArch-Win-x86_64-${{ steps.get_tag_name.outputs.VERSION }}_Full.7z
-        tag: Nightlies
+        tag: ${{ steps.get_tag_name.outputs.VERSION }}
         asset_name: RetroArch-Win-x86_64-${{ steps.get_tag_name.outputs.VERSION }}_Full.7z
         overwrite: true
 
