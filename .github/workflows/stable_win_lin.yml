@@ -107,18 +107,19 @@ jobs:
       run: msys2do make -j8
     - name: Setup working dir
       run: mkdir working_dir
-    - name: Qt deploy
-      run: msys2do windeployqt --release --no-patchqt --no-translations retroarch.exe
     - name: Gather Qt libs
       run: ForEach ($l in $(msys2do ntldd.exe -R 'imageformats/*dll' | grep mingw64 | sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" working_dir/}
     - name: Gather the other libs
       run: ForEach ($l in $(msys2do ntldd.exe -R '*.exe'|grep mingw64|sed -e 's/^[ \t]*//'|cut -d' ' -f3)){cp "$l" working_dir/}
     - name: Free up some disk space
-      run: msys2do rm -rf .git && msys2do pacman -Rsu --noconfirm mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw-w64-x86_64-openssl
+      run: msys2do rm -rf .git && msys2do pacman -Rsu --noconfirm mingw-w64-x86_64-toolchain mingw-w64-x86_64-openssl
     - name: Create debug exe and strip regular exe
       run: msys2do cp retroarch.exe retroarch_debug.exe && strip.exe -s retroarch.exe
     - name: Move executables to working dir (libs are already there)
       run: mv *.exe working_dir/
+    - name: Qt deploy
+      working-directory: working_dir
+      run: msys2do windeployqt --release --no-patchqt --no-translations retroarch.exe
     - name: Get tag name
       id: get_tag_name
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
