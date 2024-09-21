@@ -11306,6 +11306,30 @@ MSG_HASH(
    "Right Analog (Forced)"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_4WAY,
+   "Left Analog 4-way"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_4WAY,
+   "Right Analog 4-way"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_FACE,
+   "Left Analog Face Buttons"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_FACE,
+   "Right Analog Face Buttons"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_PWM,
+   "Left Analog PWM D-Pad"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_PWM,
+   "Right Analog PWM D-Pad"
+   )
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_INPUT_KEY,
    "Key %s"
    )

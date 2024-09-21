@@ -7054,6 +7054,23 @@ int runloop_iterate(void)
             break;
          case ANALOG_DPAD_RSTICK_FORCED:
             dpad_mode[i] = ANALOG_DPAD_RSTICK;
+            break;         case ANALOG_4WAY_LSTICK:
+            dpad_mode[i] = ANALOG_4WAY_LSTICK;
+            break;
+         case ANALOG_4WAY_RSTICK:
+            dpad_mode[i] = ANALOG_4WAY_RSTICK;
+            break;
+         case ANALOG_FACE_LSTICK:
+            dpad_mode[i] = ANALOG_FACE_LSTICK;
+            break;
+         case ANALOG_FACE_RSTICK:
+            dpad_mode[i] = ANALOG_FACE_RSTICK;
+            break;
+         case ANALOG_PWM_LSTICK:
+            dpad_mode[i] = ANALOG_PWM_LSTICK;
+            break;
+         case ANALOG_PWM_RSTICK:
+            dpad_mode[i] = ANALOG_PWM_RSTICK;
             break;
          default:
             break;
@@ -7071,7 +7088,10 @@ int runloop_iterate(void)
          unsigned x_minus                    = RARCH_ANALOG_RIGHT_X_MINUS;
          unsigned y_minus                    = RARCH_ANALOG_RIGHT_Y_MINUS;
 
-         if (dpad_mode[i] == ANALOG_DPAD_LSTICK)
+         if ((dpad_mode[i] == ANALOG_DPAD_LSTICK) ||
+            (dpad_mode[i] == ANALOG_4WAY_LSTICK) ||
+            (dpad_mode[i] == ANALOG_FACE_LSTICK) ||
+            (dpad_mode[i] == ANALOG_PWM_LSTICK))
          {
             x_plus                           = RARCH_ANALOG_LEFT_X_PLUS;
             y_plus                           = RARCH_ANALOG_LEFT_Y_PLUS;

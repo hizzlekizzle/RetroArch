@@ -6907,14 +6907,19 @@ static void setting_get_string_representation_uint_libretro_device(
 static void setting_get_string_representation_uint_analog_dpad_mode(
       rarch_setting_t *setting,
       char *s, size_t len)
-{
-   const char *modes[5];
+{   const char *modes[11];
 
-   modes[0] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_NONE);
-   modes[1] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG);
-   modes[2] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG);
-   modes[3] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_FORCED);
-   modes[4] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_FORCED);
+   modes[0]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_NONE);
+   modes[1]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG);
+   modes[2]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG);
+   modes[3]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_FORCED);
+   modes[4]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_FORCED);
+   modes[5]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_4WAY);
+   modes[6]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_4WAY);
+   modes[7]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_FACE);
+   modes[8]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_FACE);
+   modes[9]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_PWM);
+   modes[10] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_PWM);
 
    strlcpy(s, modes[*setting->value.target.unsigned_integer % ANALOG_DPAD_LAST], len);
 }

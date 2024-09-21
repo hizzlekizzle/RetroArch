@@ -936,10 +936,16 @@ static int16_t input_joypad_analog_axis(
    switch (input_analog_dpad_mode)
    {
       case ANALOG_DPAD_LSTICK:
+      case ANALOG_4WAY_LSTICK:
+      case ANALOG_FACE_LSTICK:
+      case ANALOG_PWM_LSTICK:
          if (idx == RETRO_DEVICE_INDEX_ANALOG_LEFT)
             return 0;
          break;
       case ANALOG_DPAD_RSTICK:
+      case ANALOG_4WAY_RSTICK:
+      case ANALOG_FACE_RSTICK:
+      case ANALOG_PWM_RSTICK:
          if (idx == RETRO_DEVICE_INDEX_ANALOG_RIGHT)
             return 0;
          break;
@@ -3539,6 +3545,130 @@ static void input_poll_overlay(
          break;
       }
 
+      case ANALOG_4WAY_LSTICK:
+      case ANALOG_4WAY_RSTICK:
+      {
+         float analog_x, analog_y;
+         unsigned analog_base = 2;
+         if (analog_dpad_mode == ANALOG_4WAY_LSTICK)
+            analog_base = 0;
+         analog_x = (float)ol_state->analog[analog_base + 0] / 0x7fff;
+         analog_y = (float)ol_state->analog[analog_base + 1] / 0x7fff;
+         if ((analog_x <= -axis_threshold) && (abs(analog_x) >= abs(analog_y)))
+         {
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_LEFT);
+            break;
+         }
+         if ((analog_x >=  axis_threshold) && (abs(analog_x) >= abs(analog_y)))
+         {
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_RIGHT);
+            break;
+         }
+         if ((analog_y <= -axis_threshold) && (abs(analog_y) >= abs(analog_x)))
+         {
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_UP);
+            break;
+         }
+         if ((analog_y >=  axis_threshold) && (abs(analog_y) >= abs(analog_x)))
+         {
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_DOWN);
+            break;
+         }
+         break;
+      }
+
+      case ANALOG_FACE_LSTICK:
+      case ANALOG_FACE_RSTICK:
+      {
+         float analog_x, analog_y;
+         unsigned analog_base = 2;
+         if (analog_dpad_mode == ANALOG_FACE_LSTICK)
+            analog_base = 0;
+         analog_x = (float)ol_state->analog[analog_base + 0] / 0x7fff;
+         analog_y = (float)ol_state->analog[analog_base + 1] / 0x7fff;
+         if ((analog_x <= -axis_threshold) && (abs(analog_x) > abs(analog_y)))
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_Y);
+         if ((analog_x >=  axis_threshold) && (abs(analog_x) > abs(analog_y)))
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_A);
+         if ((analog_y <= -axis_threshold) && (abs(analog_y) > abs(analog_x)))
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_X);
+         if ((analog_y >=  axis_threshold) && (abs(analog_y) > abs(analog_x)))
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_B);
+         break;
+      }
+
+      case ANALOG_PWM_LSTICK:
+      case ANALOG_PWM_RSTICK:
+      {
+         float analog_x, analog_y;
+         unsigned analog_base = 2;
+         uint l_delay_flag;
+         uint r_delay_flag;
+         uint u_delay_flag;
+         uint d_delay_flag;
+         if (l_delay_flag > 0)
+            l_delay_flag = l_delay_flag - 1;
+         if (r_delay_flag > 0)
+            r_delay_flag = r_delay_flag - 1;
+         if (u_delay_flag > 0)
+            u_delay_flag = u_delay_flag - 1;
+         if (d_delay_flag > 0)
+            d_delay_flag = d_delay_flag - 1;
+         if (analog_dpad_mode == ANALOG_PWM_LSTICK)
+            analog_base = 0;
+         analog_x = (float)ol_state->analog[analog_base + 0] / 0x7fff;
+         analog_y = (float)ol_state->analog[analog_base + 1] / 0x7fff;
+         if ((analog_x <= -axis_threshold) && (l_delay_flag < 1))
+         {
+            if (analog_x < -0.25f)
+               l_delay_flag = l_delay_flag + 3;
+            else if (analog_x < -0.50f)
+               l_delay_flag = l_delay_flag + 2;
+            else if (analog_x < -0.75f)
+               l_delay_flag = l_delay_flag + 1;
+            else 
+               l_delay_flag = 0;
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_LEFT);
+         }
+         if ((analog_x >=  axis_threshold) && (r_delay_flag < 1))
+         {
+            if (analog_x < -0.25f)
+               r_delay_flag = r_delay_flag + 3;
+            else if (analog_x < -0.50f)
+               r_delay_flag = r_delay_flag + 2;
+            else if (analog_x < -0.75f)
+               r_delay_flag = r_delay_flag + 1;
+            else 
+               r_delay_flag = 0;
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_RIGHT);
+         }
+         if ((analog_y <= -axis_threshold) && (u_delay_flag < 1))
+         {
+            if (analog_x < -0.25f)
+               u_delay_flag = u_delay_flag + 3;
+            else if (analog_x < -0.50f)
+               u_delay_flag = u_delay_flag + 2;
+            else if (analog_x < -0.75f)
+               u_delay_flag = u_delay_flag + 1;
+            else 
+               u_delay_flag = 0;
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_UP);
+         }
+         if ((analog_y >=  axis_threshold) && (d_delay_flag < 1))
+         {
+            if (analog_x < -0.25f)
+               d_delay_flag = d_delay_flag + 3;
+            else if (analog_x < -0.50f)
+               d_delay_flag = d_delay_flag + 2;
+            else if (analog_x < -0.75f)
+               d_delay_flag = d_delay_flag + 1;
+            else 
+               d_delay_flag = 0;
+            BIT256_SET(ol_state->buttons, RETRO_DEVICE_ID_JOYPAD_DOWN);
+         }
+         break;
+      }
+
       default:
          break;
    }
@@ -6115,6 +6245,24 @@ void input_driver_poll(void)
          case ANALOG_DPAD_RSTICK_FORCED:
             input_analog_dpad_mode       = ANALOG_DPAD_RSTICK;
             break;
+         case ANALOG_4WAY_LSTICK:
+            input_analog_dpad_mode       = ANALOG_4WAY_LSTICK;
+            break;
+         case ANALOG_4WAY_RSTICK:
+            input_analog_dpad_mode       = ANALOG_4WAY_RSTICK;
+            break;
+         case ANALOG_FACE_LSTICK:
+            input_analog_dpad_mode       = ANALOG_FACE_LSTICK;
+            break;
+         case ANALOG_FACE_RSTICK:
+            input_analog_dpad_mode       = ANALOG_FACE_RSTICK;
+            break;
+         case ANALOG_PWM_LSTICK:
+            input_analog_dpad_mode       = ANALOG_PWM_LSTICK;
+            break;
+         case ANALOG_PWM_RSTICK:
+            input_analog_dpad_mode       = ANALOG_PWM_RSTICK;
+            break;
          default:
             break;
       }
@@ -6166,6 +6314,24 @@ void input_driver_poll(void)
             case ANALOG_DPAD_RSTICK_FORCED:
                input_analog_dpad_mode    = ANALOG_DPAD_RSTICK;
                break;
+            case ANALOG_4WAY_LSTICK:
+               input_analog_dpad_mode    = ANALOG_4WAY_LSTICK;
+               break;
+            case ANALOG_4WAY_RSTICK:
+               input_analog_dpad_mode    = ANALOG_4WAY_RSTICK;
+               break;
+            case ANALOG_FACE_LSTICK:
+               input_analog_dpad_mode    = ANALOG_FACE_LSTICK;
+               break;
+            case ANALOG_FACE_RSTICK:
+               input_analog_dpad_mode    = ANALOG_FACE_RSTICK;
+               break;
+            case ANALOG_PWM_LSTICK:
+               input_analog_dpad_mode    = ANALOG_PWM_LSTICK;
+               break;
+            case ANALOG_PWM_RSTICK:
+               input_analog_dpad_mode    = ANALOG_PWM_RSTICK;
+            break;
             default:
                break;
          }
