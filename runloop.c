@@ -395,9 +395,6 @@ void runloop_log_counters(
 
 static void runloop_perf_log(void)
 {
-   if (!runloop_state.perfcnt_enable)
-      return;
-
    RARCH_LOG("[PERF]: Performance counters (libretro):\n");
    runloop_log_counters(runloop_state.perf_counters_libretro,
          runloop_state.perf_ptr_libretro);
@@ -2642,17 +2639,6 @@ bool runloop_environment_cb(unsigned cmd, void *data)
          break;
       }
 
-      case RETRO_ENVIRONMENT_GET_FILE_BROWSER_START_DIRECTORY:
-      {
-         const char **dir            = (const char**)data;
-         const char *dir_content     = settings->paths.directory_menu_content;
-
-         *dir = *dir_content ? dir_content : NULL;
-         RARCH_LOG("[Environ]: FILE_BROWSER_START_DIRECTORY: \"%s\".\n",
-               dir_content);
-         break;
-      }
-
       case RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO:
       /**
        * Update the system Audio/Video information.
@@ -4162,7 +4148,7 @@ static bool runloop_path_init_subsystem(runloop_state_t *runloop_st)
          {
             char ext[32];
             union string_list_elem_attr attr;
-            char savename[NAME_MAX_LENGTH];
+            char savename[PATH_MAX_LENGTH];
             char path[PATH_MAX_LENGTH];
             size_t _len = 0;
             const struct retro_subsystem_memory_info *mem =
@@ -5198,7 +5184,7 @@ void core_options_reset(void)
 void core_options_flush(void)
 {
    size_t _len;
-   char msg[128];
+   char msg[256];
    runloop_state_t *runloop_st     = &runloop_state;
    core_option_manager_t *coreopts = runloop_st->core_options;
    const char *path_core_options   = path_get(RARCH_PATH_CORE_OPTIONS);
@@ -6429,14 +6415,16 @@ static enum runloop_state_enum runloop_check_state(
             current_bits, RARCH_FAST_FORWARD_KEY);
       bool new_hold_button_state              = BIT256_GET(
             current_bits, RARCH_FAST_FORWARD_HOLD_KEY);
-      bool check2                             = new_button_state && !old_button_state;
+      bool check2                             = new_button_state
+         && !old_button_state;
 
       if (!check2)
          check2 = old_hold_button_state != new_hold_button_state;
 
       /* Don't allow fastmotion while paused */
-      if (check2 && runloop_paused)
+      if (runloop_paused)
       {
+         check2                = true;
          new_button_state      = false;
          new_hold_button_state = false;
          input_st->flags      |= INP_FLAG_NONBLOCKING;
@@ -7055,6 +7043,24 @@ int runloop_iterate(void)
          case ANALOG_DPAD_RSTICK_FORCED:
             dpad_mode[i] = ANALOG_DPAD_RSTICK;
             break;
+         case ANALOG_4WAY_LSTICK:
+            dpad_mode[i] = ANALOG_4WAY_LSTICK;
+            break;
+         case ANALOG_4WAY_RSTICK:
+            dpad_mode[i] = ANALOG_4WAY_RSTICK;
+            break;
+         case ANALOG_FACE_LSTICK:
+            dpad_mode[i] = ANALOG_FACE_LSTICK;
+            break;
+         case ANALOG_FACE_RSTICK:
+            dpad_mode[i] = ANALOG_FACE_RSTICK;
+            break;
+         case ANALOG_PWM_LSTICK:
+            dpad_mode[i] = ANALOG_PWM_LSTICK;
+            break;
+         case ANALOG_PWM_RSTICK:
+            dpad_mode[i] = ANALOG_PWM_RSTICK;
+            break;
          default:
             break;
       }
@@ -7071,7 +7077,10 @@ int runloop_iterate(void)
          unsigned x_minus                    = RARCH_ANALOG_RIGHT_X_MINUS;
          unsigned y_minus                    = RARCH_ANALOG_RIGHT_Y_MINUS;
 
-         if (dpad_mode[i] == ANALOG_DPAD_LSTICK)
+         if ((dpad_mode[i] == ANALOG_DPAD_LSTICK) ||
+            (dpad_mode[i] == ANALOG_4WAY_LSTICK) ||
+            (dpad_mode[i] == ANALOG_FACE_LSTICK) ||
+            (dpad_mode[i] == ANALOG_PWM_LSTICK))
          {
             x_plus                           = RARCH_ANALOG_LEFT_X_PLUS;
             y_plus                           = RARCH_ANALOG_LEFT_Y_PLUS;
@@ -7330,7 +7339,7 @@ void runloop_task_msg_queue_push(
    dispgfx_widget_t *p_dispwidget = dispwidget_get_ptr();
    bool widgets_active            = p_dispwidget->active;
 
-   if (widgets_active && task->title && (!((task->flags & RETRO_TASK_FLG_MUTE) > 0)))
+   if (widgets_active && task->title && !task->mute)
    {
       RUNLOOP_MSG_QUEUE_LOCK(runloop_st);
       ui_companion_driver_msg_queue_push(msg,

@@ -2569,8 +2569,8 @@ static int setting_action_ok_bind_all_save_autoconfig(
    if (!string_is_empty(name) &&
          config_save_autoconf_profile(name, index_offset))
    {
-      char buf[128];
-      char msg[NAME_MAX_LENGTH];
+      char buf[PATH_MAX_LENGTH];
+      char msg[PATH_MAX_LENGTH];
       config_get_autoconf_profile_filename(name, index_offset, buf, sizeof(buf));
       snprintf(msg, sizeof(msg),msg_hash_to_str(MSG_AUTOCONFIG_FILE_SAVED_SUCCESSFULLY_NAMED),buf);
       runloop_msg_queue_push(
@@ -6908,13 +6908,19 @@ static void setting_get_string_representation_uint_analog_dpad_mode(
       rarch_setting_t *setting,
       char *s, size_t len)
 {
-   const char *modes[5];
+   const char *modes[11];
 
-   modes[0] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_NONE);
-   modes[1] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG);
-   modes[2] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG);
-   modes[3] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_FORCED);
-   modes[4] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_FORCED);
+   modes[0]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_NONE);
+   modes[1]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG);
+   modes[2]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG);
+   modes[3]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_FORCED);
+   modes[4]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_FORCED);
+   modes[5]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_4WAY);
+   modes[6]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_4WAY);
+   modes[7]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_FACE);
+   modes[8]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_FACE);
+   modes[9]  = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_LEFT_ANALOG_PWM);
+   modes[10] = msg_hash_to_str(MENU_ENUM_LABEL_VALUE_RIGHT_ANALOG_PWM);
 
    strlcpy(s, modes[*setting->value.target.unsigned_integer % ANALOG_DPAD_LAST], len);
 }
@@ -9517,7 +9523,7 @@ static bool setting_append_list_input_player_options(
     * 2 is the length of '99'; we don't need more users than that.
     */
    static char buffer[MAX_USERS][13+2+1];
-   static char group_label[MAX_USERS][NAME_MAX_LENGTH];
+   static char group_label[MAX_USERS][255];
    unsigned i, j;
    rarch_setting_group_info_t group_info;
    rarch_setting_group_info_t subgroup_info;
@@ -14017,8 +14023,8 @@ static bool setting_append_list(
                   general_write_handler,
                   general_read_handler);
             (*list)[list_info->index - 1].action_ok = &setting_action_ok_uint;
-            (*list)[list_info->index - 1].offset_by = MINIMUM_MAX_SWAPCHAIN_IMAGES;
-            menu_settings_list_current_add_range(list, list_info, (*list)[list_info->index - 1].offset_by, MAXIMUM_MAX_SWAPCHAIN_IMAGES, 1, true, true);
+            (*list)[list_info->index - 1].offset_by = 2;
+            menu_settings_list_current_add_range(list, list_info, (*list)[list_info->index - 1].offset_by, 4, 1, true, true);
             SETTINGS_DATA_LIST_CURRENT_ADD_FLAGS(list, list_info, SD_FLAG_CMD_APPLY_AUTO);
             MENU_SETTINGS_LIST_CURRENT_ADD_CMD(list, list_info, CMD_EVENT_REINIT);
 
@@ -14089,7 +14095,7 @@ static bool setting_append_list(
                   general_write_handler,
                   general_read_handler);
             (*list)[list_info->index - 1].action_ok = &setting_action_ok_uint;
-            menu_settings_list_current_add_range(list, list_info, MINIMUM_HARD_SYNC_FRAMES, MAXIMUM_HARD_SYNC_FRAMES, 1, true, true);
+            menu_settings_list_current_add_range(list, list_info, 0, 3, 1, true, true);
 
             if (video_driver_test_all_flags(GFX_CTX_FLAGS_ADAPTIVE_VSYNC))
             {
@@ -15267,38 +15273,6 @@ static bool setting_append_list(
 
             CONFIG_BOOL(
                   list, list_info,
-                  &settings->bools.menu_disable_left_analog,
-                  MENU_ENUM_LABEL_INPUT_DISABLE_LEFT_ANALOG_IN_MENU,
-                  MENU_ENUM_LABEL_VALUE_INPUT_DISABLE_LEFT_ANALOG_IN_MENU,
-                  false,
-                  MENU_ENUM_LABEL_VALUE_OFF,
-                  MENU_ENUM_LABEL_VALUE_ON,
-                  &group_info,
-                  &subgroup_info,
-                  parent_group,
-                  general_write_handler,
-                  general_read_handler,
-                  SD_FLAG_ADVANCED
-                  );
-
-            CONFIG_BOOL(
-                  list, list_info,
-                  &settings->bools.menu_disable_right_analog,
-                  MENU_ENUM_LABEL_INPUT_DISABLE_RIGHT_ANALOG_IN_MENU,
-                  MENU_ENUM_LABEL_VALUE_INPUT_DISABLE_RIGHT_ANALOG_IN_MENU,
-                  false,
-                  MENU_ENUM_LABEL_VALUE_OFF,
-                  MENU_ENUM_LABEL_VALUE_ON,
-                  &group_info,
-                  &subgroup_info,
-                  parent_group,
-                  general_write_handler,
-                  general_read_handler,
-                  SD_FLAG_ADVANCED
-                  );
-
-            CONFIG_BOOL(
-                  list, list_info,
                   &settings->bools.quit_press_twice,
                   MENU_ENUM_LABEL_QUIT_PRESS_TWICE,
                   MENU_ENUM_LABEL_VALUE_QUIT_PRESS_TWICE,
@@ -15705,22 +15679,6 @@ static bool setting_append_list(
 
             CONFIG_BOOL(
                   list, list_info,
-                  &settings->bools.input_remap_sort_by_controller_enable,
-                  MENU_ENUM_LABEL_INPUT_REMAP_SORT_BY_CONTROLLER_ENABLE,
-                  MENU_ENUM_LABEL_VALUE_INPUT_REMAP_SORT_BY_CONTROLLER_ENABLE,
-                  false,
-                  MENU_ENUM_LABEL_VALUE_OFF,
-                  MENU_ENUM_LABEL_VALUE_ON,
-                  &group_info,
-                  &subgroup_info,
-                  parent_group,
-                  general_write_handler,
-                  general_read_handler,
-                  SD_FLAG_ADVANCED
-                  );
-
-            CONFIG_BOOL(
-                  list, list_info,
                   &settings->bools.input_autodetect_enable,
                   MENU_ENUM_LABEL_INPUT_AUTODETECT_ENABLE,
                   MENU_ENUM_LABEL_VALUE_INPUT_AUTODETECT_ENABLE,
@@ -16024,8 +15982,8 @@ static bool setting_append_list(
                   msg_hash_to_str(MENU_ENUM_LABEL_VALUE_INPUT_USER_BINDS);
                for (user = 0; user < MAX_USERS; user++)
                {
-                  static char binds_list[MAX_USERS][NAME_MAX_LENGTH];
-                  static char binds_label[MAX_USERS][NAME_MAX_LENGTH];
+                  static char binds_list[MAX_USERS][255];
+                  static char binds_label[MAX_USERS][255];
                   unsigned user_value = user + 1;
                   size_t _len = snprintf(binds_list[user],  sizeof(binds_list[user]), "%d", user_value);
                   strlcpy(binds_list[user] + _len, "_input_binds_list", sizeof(binds_list[user]) - _len);
@@ -23181,7 +23139,7 @@ static bool setting_append_list(
                   msg_hash_to_str(MENU_ENUM_LABEL_VALUE_NETWORK_USER_REMOTE_ENABLE);
                for (user = 0; user < max_users; user++)
                {
-                  char s1[32], s2[64];
+                  char s1[64], s2[64];
                   size_t _len = strlcpy(s1, lbl_network_remote_enable, sizeof(s1));
                   snprintf(s1 + _len, sizeof(s1) - _len, "_user_p%d", user + 1);
                   snprintf(s2, sizeof(s2), val_network_remote_enable, user + 1);
