@@ -1593,9 +1593,9 @@ static void decode_video(AVCodecContext *ctx, AVPacket *pkt, size_t frame_size)
    if ((ret = avcodec_send_packet(ctx, pkt)) < 0)
    {
 #ifdef __cplusplus
-      log_cb(RETRO_LOG_ERROR, "[FFMPEG] Can't decode video packet: %d\n", ret);
+      log_cb(RETRO_LOG_ERROR, "[FFMPEG] send_packet failed: %d (%s)\n", ret);
 #else
-      log_cb(RETRO_LOG_ERROR, "[FFMPEG] Can't decode video packet: %s\n", av_err2str(ret));
+      log_cb(RETRO_LOG_ERROR, "[FFMPEG] send_packet failed: %d (%s)\n", av_err2str(ret));
 #endif
       return;
    }
