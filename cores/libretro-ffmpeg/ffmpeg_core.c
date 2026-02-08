@@ -1605,9 +1605,14 @@ static void decode_video(AVCodecContext *ctx, AVPacket *pkt, size_t frame_size)
       video_buffer_get_open_slot(video_buffer, &decoder_ctx);
 
       ret = avcodec_receive_frame(ctx, decoder_ctx->source);
-      if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+      if (ret == AVERROR(EAGAIN))
       {
-         ret = -42;
+         //ret = -42;
+         //goto end;
+         break;
+      }
+      if (ret == AVERROR_EOF)
+      {
          goto end;
       }
       else if (ret < 0)
