@@ -5562,6 +5562,63 @@ static INLINE bool runloop_is_libretro_running(runloop_state_t* runloop_st, bool
       &&    runloop_st->flags & RUNLOOP_FLAG_CORE_RUNNING);
 }
 
+static void runloop_check_autosavestate(void)
+{
+   const uint32_t interval_sec = 10;
+   static retro_time_t last_time = 0;
+   static bool initialized = false;
+   static bool in_progress = false;
+
+#ifdef HAVE_CHEEVOS
+   if (rcheevos_hardcore_active())
+      return;
+#endif
+
+   if (interval_sec == 0)
+      return;
+
+   /* skip if no core is loaded, content is paused/ff, or menu is open */
+   if (!core_is_running() || runloop_is_paused() ||
+      video_driver_is_fastforwarding() || menu_driver_is_alive())
+      return;
+
+   /* should we have a max size check here, as well? for safety? */
+   if (core_serialize_size() == 0)
+      return;
+
+   if (!initialized)
+   {
+      last_time = cpu_features_get_time_usec();
+      initialized = true;
+      return;
+   }
+
+   retro_time_t now = cpu_features_get_time_usec();
+
+   if (now - last_time < (retro_time_t)interval_sec * 1000000)
+      return;
+
+   if (in_progress)
+      return;
+
+   last_time = now;
+   in_progress = true;
+
+   runloop_perform_autosavestate();
+
+   in_progress = false;
+}
+
+static void runloop_perform_autosavestate(void)
+{
+   /* pin the current slot, switch to auto, save, switch back */
+   int prev_slot = state_manager_get_current_slot();
+
+   state_manager_set_current_slot(-1);
+   command_event(CMD_EVENT_SAVE_STATE, NULL);
+   state_manager_set_current_slot(prev_slot);
+}
+
 static enum runloop_state_enum runloop_check_state(
       input_driver_state_t *input_st,
       audio_driver_state_t *audio_st,
@@ -7087,6 +7144,9 @@ static enum runloop_state_enum runloop_check_state(
 
       old_shader_hold_button_state             = new_shader_hold_button_state;
    }
+
+   /* we should be safe to check for autosavestates now */
+   runloop_check_autosavestate()
 
    if (settings->bools.video_shader_watch_files)
    {
