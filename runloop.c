@@ -5562,7 +5562,22 @@ static INLINE bool runloop_is_libretro_running(runloop_state_t* runloop_st, bool
       &&    runloop_st->flags & RUNLOOP_FLAG_CORE_RUNNING);
 }
 
-static void runloop_check_autosavestate(void)
+static void runloop_perform_autosavestate(
+   settings_t *settings)
+{
+   /* pin the current slot, switch to auto, save, switch back */
+   int state_slot = settings->ints.state_slot;
+   int prev_slot = state_slot;
+
+   settings->ints.state_slot = -1;
+   command_event(CMD_EVENT_SAVE_STATE, NULL);
+   settings->ints.state_slot = prev_slot;
+}
+
+static void runloop_check_autosavestate(
+   settings_t *settings,
+   runloop_state_t *runloop_st,
+   struct menu_state *menu_st)
 {
    const uint32_t interval_sec = 10;
    static retro_time_t last_time = 0;
@@ -5577,9 +5592,13 @@ static void runloop_check_autosavestate(void)
    if (interval_sec == 0)
       return;
 
-   /* skip if no core is loaded, content is paused/ff, or menu is open */
-   if (!core_is_running() || runloop_is_paused() ||
-      video_driver_is_fastforwarding() || menu_driver_is_alive())
+   /* skip if content is paused, FFing, or menu is open */
+   if ((runloop_st->flags & RUNLOOP_FLAG_PAUSED) ||
+      (runloop_st->flags & RUNLOOP_FLAG_FASTMOTION)
+#ifdef HAVE_MENU
+      || (menu_st->flags & MENU_ST_FLAG_ALIVE)
+#endif
+      )
       return;
 
    /* should we have a max size check here, as well? for safety? */
@@ -5604,19 +5623,9 @@ static void runloop_check_autosavestate(void)
    last_time = now;
    in_progress = true;
 
-   runloop_perform_autosavestate();
+   runloop_perform_autosavestate(settings);
 
    in_progress = false;
-}
-
-static void runloop_perform_autosavestate(void)
-{
-   /* pin the current slot, switch to auto, save, switch back */
-   int prev_slot = state_manager_get_current_slot();
-
-   state_manager_set_current_slot(-1);
-   command_event(CMD_EVENT_SAVE_STATE, NULL);
-   state_manager_set_current_slot(prev_slot);
 }
 
 static enum runloop_state_enum runloop_check_state(
@@ -7146,7 +7155,7 @@ static enum runloop_state_enum runloop_check_state(
    }
 
    /* we should be safe to check for autosavestates now */
-   runloop_check_autosavestate()
+   runloop_check_autosavestate(settings, runloop_st, menu_st);
 
    if (settings->bools.video_shader_watch_files)
    {
