@@ -2888,6 +2888,10 @@ static bool d3d8_frame(void *data, const void *frame,
       {
          if (IDirect3DDevice8_Present(d3d->dev, NULL, NULL, NULL, NULL)
                == D3DERR_DEVICELOST)
+          {
+             video_driver_state_t *video_st = video_state_get_ptr();
+             video_st->swap_count++;
+          }
             return true;
          if (d3d->needs_restore)
             return true;
@@ -2976,6 +2980,10 @@ static bool d3d8_frame(void *data, const void *frame,
 
    video_driver_update_title(NULL);
    IDirect3DDevice8_Present(d3d->dev, NULL, NULL, NULL, NULL);
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
+    }
 
    return true;
 }

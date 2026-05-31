@@ -7756,8 +7756,16 @@ static bool d3d9_hlsl_frame(void *data, const void *frame,
 #ifdef _XBOX
         bool ret = true;
         IDirect3DDevice9_Present(d3d->dev, NULL, NULL, NULL, NULL);
+         {
+            video_driver_state_t *video_st = video_state_get_ptr();
+            video_st->swap_count++;
+         }
 #else
         bool ret = (IDirect3DDevice9_Present(d3d->dev,
+         {
+            video_driver_state_t *video_st = video_state_get_ptr();
+            video_st->swap_count++;
+         }
                  NULL, NULL, NULL, NULL) != D3DERR_DEVICELOST);
 #endif
         if (!ret || d3d->needs_restore)
@@ -7877,6 +7885,7 @@ static bool d3d9_hlsl_frame(void *data, const void *frame,
       if (hr == D3DERR_DEVICELOST)
       {
          video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
          RARCH_WARN("[D3D9 HLSL] Device lost detected on Present().\n");
          d3d->needs_restore = true;
          video_st->flags |= VIDEO_FLAG_GPU_DEVICE_LOST;
@@ -7884,6 +7893,10 @@ static bool d3d9_hlsl_frame(void *data, const void *frame,
       }
    }
 #else
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
+    }
    IDirect3DDevice9_Present(d3d->dev, NULL, NULL, NULL, NULL);
 #endif
 

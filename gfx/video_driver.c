@@ -325,7 +325,7 @@ static void *video_null_init(const video_info_t *video,
 }
 
 static bool video_null_frame(void *a, const void *b, unsigned c, unsigned d,
-uint64_t e, unsigned f, const char *g, video_frame_info_t *h) { return true; }
+uint64_t e, uint64_t swap_count, unsigned f, const char *g, video_frame_info_t *h) { return true; }
 static void video_null_free(void *a) { }
 static void video_null_set_nonblock_state(void *a, bool b, bool c, unsigned d) { }
 static bool video_null_alive(void *a) { return frontend_driver_get_signal_handler_state() != 1; }

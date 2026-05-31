@@ -4717,6 +4717,10 @@ static void dx12_inject_black_frame(d3d12_video_t* d3d12)
    d3d12->queue.handle->lpVtbl->ExecuteCommandLists(d3d12->queue.handle, 1,
          (ID3D12CommandList* const*)&d3d12->queue.cmd);
    DXGIPresent(d3d12->chain.handle, d3d12->chain.swap_interval, 0);
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
+    }
 
 }
 
@@ -6024,8 +6028,16 @@ static bool d3d12_gfx_frame(
    {
       d3d12_wait_for_vblank(d3d12);
       DXGIPresent(d3d12->chain.handle, 0, (present_flags | DXGI_PRESENT_ALLOW_TEARING));
+       {
+          video_driver_state_t *video_st = video_state_get_ptr();
+          video_st->swap_count++;
+       }
    }
    else
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
+    }
       DXGIPresent(d3d12->chain.handle, d3d12->chain.swap_interval, present_flags);
 
    if (vsync && d3d12->wait_for_vblank > 0)

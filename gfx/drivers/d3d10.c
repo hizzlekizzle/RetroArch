@@ -3399,6 +3399,10 @@ static bool d3d10_gfx_frame(
    video_driver_update_title(NULL);
 #endif
    DXGIPresent(d3d10->swapChain, d3d10->swap_interval, 0);
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
+    }
 
    if (
            black_frame_insertion
@@ -3438,6 +3442,10 @@ static bool d3d10_gfx_frame(
             context->lpVtbl->OMSetRenderTargets(context, 1, &d3d10->renderTargetView, NULL);
             context->lpVtbl->ClearRenderTargetView(context, d3d10->renderTargetView, d3d10->clearcolor);
             DXGIPresent(d3d10->swapChain, d3d10->swap_interval, 0);
+             {
+                video_driver_state_t *video_st = video_state_get_ptr();
+                video_st->swap_count++;
+             }
          }
       }
    }

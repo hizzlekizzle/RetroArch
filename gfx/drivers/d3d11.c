@@ -4898,6 +4898,10 @@ static bool d3d11_gfx_frame(
    }
    else
       DXGIPresent(d3d11->swapChain, d3d11->swap_interval, present_flags);
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
+    }
 
    if (vsync && d3d11->wait_for_vblank > 0)
       d3d11_wait_for_vblank(d3d11);
@@ -4940,6 +4944,10 @@ static bool d3d11_gfx_frame(
             context->lpVtbl->OMSetRenderTargets(context, 1, &rtv, NULL);
             context->lpVtbl->ClearRenderTargetView(context, rtv, d3d11->clearcolor);
             DXGIPresent(d3d11->swapChain, d3d11->swap_interval, present_flags);
+             {
+                video_driver_state_t *video_st = video_state_get_ptr();
+                video_st->swap_count++;
+             }
          }
       }
    }

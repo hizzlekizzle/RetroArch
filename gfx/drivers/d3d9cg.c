@@ -4512,6 +4512,10 @@ static bool d3d9_cg_frame(void *data, const void *frame,
       {
         bool ret = (IDirect3DDevice9_Present(d3d->dev,
                  NULL, NULL, NULL, NULL) != D3DERR_DEVICELOST);
+         {
+            video_driver_state_t *video_st = video_state_get_ptr();
+            video_st->swap_count++;
+         }
         if (!ret || d3d->needs_restore)
           return true;
         IDirect3DDevice9_Clear(d3d->dev, 0, 0, D3DCLEAR_TARGET,
@@ -4626,6 +4630,7 @@ static bool d3d9_cg_frame(void *data, const void *frame,
    video_driver_update_title(NULL);
 
    {
+       video_st->swap_count++;
       HRESULT hr = IDirect3DDevice9_Present(d3d->dev, NULL, NULL, NULL, NULL);
       if (hr == D3DERR_DEVICELOST)
       {

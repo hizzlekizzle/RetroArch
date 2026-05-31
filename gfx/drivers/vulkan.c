@@ -7215,6 +7215,10 @@ static bool vulkan_frame(void *data, const void *frame,
 
    if (vk->ctx_driver->swap_buffers)
       vk->ctx_driver->swap_buffers(vk->ctx_data);
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       video_st->swap_count++;
+    }
 
    if (!(vk->context->flags & VK_CTX_FLAG_SWAP_INTERVAL_EMULATION_LOCK))
    {
@@ -7335,6 +7339,10 @@ static bool vulkan_frame(void *data, const void *frame,
             vulkan_inject_black_frame(vk, video_info);
             if (vk->ctx_driver->swap_buffers)
                vk->ctx_driver->swap_buffers(vk->ctx_data);
+             {
+                video_driver_state_t *video_st = video_state_get_ptr();
+                video_st->swap_count++;
+             }
          }
       }
    }
