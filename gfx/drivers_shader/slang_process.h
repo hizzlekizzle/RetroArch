@@ -75,10 +75,12 @@ enum slang_semantic
    SLANG_SEMANTIC_ACCELEROMETER         = 20,
    /* vec3, accelerometer rest position XYZ */
    SLANG_SEMANTIC_ACCELEROMETER_REST    = 21,
-   SLANG_NUM_BASE_SEMANTICS        = 22,
+   /* uint, swap count (frame buffer swaps) */
+   SLANG_SEMANTIC_SWAP_COUNT            = 22,
+   SLANG_NUM_BASE_SEMANTICS        = 23,
 
    /* float, user defined parameter, arrayed */
-   SLANG_SEMANTIC_FLOAT_PARAMETER  = 23,
+   SLANG_SEMANTIC_FLOAT_PARAMETER  = 24,
 
    SLANG_NUM_SEMANTICS,
    SLANG_INVALID_SEMANTIC          = -1

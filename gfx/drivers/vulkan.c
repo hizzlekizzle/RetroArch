@@ -6329,7 +6329,7 @@ static void vulkan_run_hdr_pipeline(VkPipeline pipeline, VkRenderPass render_pas
 
 static bool vulkan_frame(void *data, const void *frame,
       unsigned frame_width, unsigned frame_height,
-      uint64_t frame_count,
+      uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    int j, k;
@@ -6555,6 +6555,8 @@ static bool vulkan_frame(void *data, const void *frame,
          (vulkan_filter_chain_t*)filter_chain, frame_index);
    vulkan_filter_chain_set_frame_count(
          (vulkan_filter_chain_t*)filter_chain, frame_count);
+    vulkan_filter_chain_set_swap_count(
+          (vulkan_filter_chain_t*)filter_chain, swap_count);
 
    /* Sub-frame info for multiframe shaders (per real content frame).
       Should always be 1 for non-use of subframes*/
@@ -7316,7 +7318,7 @@ static bool vulkan_frame(void *data, const void *frame,
          vk->context->flags |= VK_CTX_FLAG_SWAP_INTERVAL_EMULATION_LOCK;
          while (bfi_light_frames > 0)
          {
-            if (!(vulkan_frame(vk, NULL, 0, 0, frame_count, 0, msg, video_info)))
+            if (!(vulkan_frame(vk, NULL, 0, 0, frame_count, 0, 0, msg, video_info)))
             {
                vk->context->flags &= ~VK_CTX_FLAG_SWAP_INTERVAL_EMULATION_LOCK;
                return false;
@@ -7359,7 +7361,7 @@ static bool vulkan_frame(void *data, const void *frame,
                (vulkan_filter_chain_t*)filter_chain, video_info->shader_subframes);
          vulkan_filter_chain_set_current_shader_subframe(
                (vulkan_filter_chain_t*)filter_chain, j+1);
-         if (!vulkan_frame(vk, NULL, 0, 0, frame_count, 0, msg,
+         if (!vulkan_frame(vk, NULL, 0, 0, frame_count, 0, 0, msg,
                   video_info))
          {
             vk->context->flags &= ~VK_CTX_FLAG_SWAP_INTERVAL_EMULATION_LOCK;
@@ -7382,7 +7384,7 @@ static bool vulkan_frame(void *data, const void *frame,
       vk->context->flags |= VK_CTX_FLAG_SWAP_INTERVAL_EMULATION_LOCK;
       for (k = 1; k < (int) vk->context->swap_interval; k++)
       {
-         if (!vulkan_frame(vk, NULL, 0, 0, frame_count, 0, msg,
+         if (!vulkan_frame(vk, NULL, 0, 0, frame_count, 0, 0, msg,
                   video_info))
          {
             vk->context->flags &= ~VK_CTX_FLAG_SWAP_INTERVAL_EMULATION_LOCK;

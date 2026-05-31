@@ -252,6 +252,7 @@ typedef struct video_shader_ctx_params
    unsigned out_width;
    unsigned out_height;
    unsigned frame_counter;
+   unsigned swap_counter;
    unsigned fbo_info_cnt;
 } video_shader_ctx_params_t;
 
@@ -669,7 +670,7 @@ typedef struct video_poke_interface
  * along with the video frame. */
 typedef bool (*video_driver_frame_t)(void *data,
       const void *frame, unsigned width,
-      unsigned height, uint64_t frame_count,
+      unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info);
 
 /* ---- Deferred (per-frame) shader loading ---- */
@@ -805,6 +806,7 @@ typedef struct
    retro_time_t frame_time_samples[MEASURE_FRAME_TIME_SAMPLES_COUNT];
    uint64_t frame_time_count;
    uint64_t frame_count;
+   uint64_t swap_count;
    uint8_t *record_gpu_buffer;
 #ifdef HAVE_VIDEO_FILTER
    rarch_softfilter_t *state_filter;

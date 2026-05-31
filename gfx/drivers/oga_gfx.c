@@ -544,7 +544,7 @@ static void oga_calc_bounds(oga_rect_t* r, int dw, int dh, int sw, int sh, float
 }
 
 static bool oga_frame(void *data, const void *frame, unsigned width,
-      unsigned height, uint64_t frame_count,
+      unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    oga_video_t *vid            = (oga_video_t*)data;

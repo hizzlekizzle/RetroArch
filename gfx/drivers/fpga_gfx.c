@@ -158,7 +158,7 @@ static void *fpga_init(const video_info_t *video,
 }
 
 static bool fpga_frame(void *data, const void *frame,
-      unsigned frame_width, unsigned frame_height, uint64_t frame_count,
+      unsigned frame_width, unsigned frame_height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    const void *frame_to_copy = frame;

@@ -223,6 +223,7 @@ typedef struct thread_video
    struct
    {
       uint64_t count;
+      uint64_t swap_count;
       slock_t *lock;
       uint8_t *buffer;
       unsigned width;

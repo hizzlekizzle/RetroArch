@@ -1065,7 +1065,7 @@ static void sdl_rs90_blit_frame32(sdl_rs90_video_t *vid,
 }
 
 static bool sdl_rs90_gfx_frame(void *data, const void *frame,
-      unsigned width, unsigned height, uint64_t frame_count,
+      unsigned width, unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    sdl_rs90_video_t* vid = (sdl_rs90_video_t*)data;

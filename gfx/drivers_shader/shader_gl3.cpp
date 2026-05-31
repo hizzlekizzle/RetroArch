@@ -739,6 +739,11 @@ public:
       frame_count = count;
    }
 
+   void set_swap_count(uint64_t count)
+   {
+      swap_count = count;
+   }
+
    void set_frame_count_period(unsigned period)
    {
       frame_count_period = period;
@@ -890,6 +895,7 @@ private:
          unsigned index, const Texture &texture);
 
    uint64_t frame_count = 0;
+   uint64_t swap_count = 0;
    unsigned frame_count_period = 0;
    int32_t frame_direction = 1;
    uint32_t frame_time_delta = 0;
@@ -1114,6 +1120,7 @@ bool Pass::init_pipeline()
    reflect_parameter("Gyroscope", reflection.semantics[SLANG_SEMANTIC_GYROSCOPE]);
    reflect_parameter("Accelerometer", reflection.semantics[SLANG_SEMANTIC_ACCELEROMETER]);
    reflect_parameter("AccelerometerRest", reflection.semantics[SLANG_SEMANTIC_ACCELEROMETER_REST]);
+    reflect_parameter("SwapCount", reflection.semantics[SLANG_SEMANTIC_SWAP_COUNT]);
 
    {
       slang_semantic_meta &g = reflection.semantics[SLANG_SEMANTIC_GYROSCOPE];
@@ -1614,6 +1621,7 @@ void Pass::build_semantics(uint8_t *buffer,
                        frame_count_period
                        ? uint32_t(frame_count % frame_count_period)
                        : uint32_t(frame_count));
+    build_semantic_uint(buffer, SLANG_SEMANTIC_SWAP_COUNT, uint32_t(swap_count));
 
    build_semantic_int(buffer, SLANG_SEMANTIC_FRAME_DIRECTION,
                       frame_direction);
@@ -1896,6 +1904,7 @@ public:
    void end_frame();
 
    void set_frame_count(uint64_t count);
+    void set_swap_count(uint64_t count);
    void set_frame_count_period(unsigned pass, unsigned period);
    void set_frame_direction(int32_t direction);
    void set_frame_time_delta(uint32_t rot);
@@ -2646,6 +2655,12 @@ void gl3_filter_chain::set_frame_count(uint64_t count)
       passes[i]->set_frame_count(count);
 }
 
+void gl3_filter_chain::set_swap_count(uint64_t count)
+{
+   unsigned i;
+   for (i = 0; i < passes.size(); i++)
+      passes[i]->set_swap_count(count);
+}
 void gl3_filter_chain::set_frame_count_period(unsigned pass, unsigned period)
 {
    passes[pass]->set_frame_count_period(period);
@@ -3233,6 +3248,12 @@ void gl3_filter_chain_set_frame_count(
       uint64_t count)
 {
    chain->set_frame_count(count);
+}
+void gl3_filter_chain_set_swap_count(
+      gl3_filter_chain_t *chain,
+      uint64_t count)
+{
+   chain->set_swap_count(count);
 }
 
 void gl3_filter_chain_set_frame_direction(

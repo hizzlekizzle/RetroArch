@@ -2272,7 +2272,7 @@ static void rsx_update_screen(rsx_t* gcm)
 
 static bool rsx_frame(void* data, const void* frame,
       unsigned width, unsigned height,
-      uint64_t frame_count,
+      uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char* msg, video_frame_info_t *video_info)
 {
    rsx_viewport_t vp;

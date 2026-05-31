@@ -256,7 +256,7 @@ static void *caca_init(const video_info_t *video,
 }
 
 static bool caca_frame(void *data, const void *frame,
-      unsigned frame_width, unsigned frame_height, uint64_t frame_count,
+      unsigned frame_width, unsigned frame_height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    size_t _len               = 0;

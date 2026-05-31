@@ -75,7 +75,8 @@ static const char *semantic_uniform_names[] = {
    "HDR10",
    "Gyroscope",
    "Accelerometer",
-   "AccelerometerRest"
+   "AccelerometerRest",
+   "SwapCount"
 };
 
 template <typename M, typename S>
@@ -289,6 +290,7 @@ static bool slang_process_reflection(
             "Gyroscope",
             "Accelerometer",
             "AccelerometerRest",
+             "SwapCount",
          };
          int size = sizeof(names) / sizeof(*names);
          if (semantic < size)
@@ -1239,6 +1241,11 @@ static bool validate_type_for_semantic(const spirv_cross::SPIRType &type, slang_
          return type.basetype == spirv_cross::SPIRType::UInt
             &&  type.vecsize  == 1
             &&  type.columns  == 1;
+       /* uint */
+       case SLANG_SEMANTIC_SWAP_COUNT:
+          return type.basetype == spirv_cross::SPIRType::UInt
+             &&  type.vecsize  == 1
+             &&  type.columns  == 1;
          /* int */
       case SLANG_SEMANTIC_TOTAL_SUBFRAMES:
          return type.basetype == spirv_cross::SPIRType::UInt

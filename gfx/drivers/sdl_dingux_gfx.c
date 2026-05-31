@@ -753,7 +753,7 @@ static void sdl_dingux_blit_frame32(sdl_dingux_video_t *vid,
 }
 
 static bool sdl_dingux_gfx_frame(void *data, const void *frame,
-      unsigned width, unsigned height, uint64_t frame_count,
+      unsigned width, unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    sdl_dingux_video_t* vid = (sdl_dingux_video_t*)data;

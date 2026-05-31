@@ -321,7 +321,7 @@ static void *sixel_gfx_init(const video_info_t *video,
 }
 
 static bool sixel_gfx_frame(void *data, const void *frame,
-      unsigned frame_width, unsigned frame_height, uint64_t frame_count,
+      unsigned frame_width, unsigned frame_height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    gfx_ctx_mode_t mode;

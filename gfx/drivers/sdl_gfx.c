@@ -359,7 +359,7 @@ static void sdl_gfx_check_window(sdl_video_t *vid)
 }
 
 static bool sdl_gfx_frame(void *data, const void *frame, unsigned width,
-      unsigned height, uint64_t frame_count,
+      unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    char title[128];

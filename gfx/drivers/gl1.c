@@ -1608,7 +1608,7 @@ static void gl1_readback(gl1_t *gl1,
 }
 
 static bool gl1_frame(void *data, const void *frame,
-      unsigned frame_width, unsigned frame_height, uint64_t frame_count,
+      unsigned frame_width, unsigned frame_height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    const void *frame_to_copy        = NULL;
@@ -1888,7 +1888,11 @@ static bool gl1_frame(void *data, const void *frame,
 
 
    if (do_swap && gl1->ctx_driver->swap_buffers)
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
       gl1->ctx_driver->swap_buffers(gl1->ctx_data);
+       video_st->swap_count++;
+    }
 
  /* Emscripten has to do black frame insertion in its main loop */
 #ifndef EMSCRIPTEN
@@ -1916,7 +1920,7 @@ static bool gl1_frame(void *data, const void *frame,
 
          while (bfi_light_frames > 0)
          {
-            if (!(gl1_frame(gl1, frame, 0, 0, frame_count, 0, msg, video_info)))
+            if (!(gl1_frame(gl1, frame, 0, 0, frame_count, 0, 0, msg, video_info)))
             {
                gl1->flags &= ~GL1_FLAG_FRAME_DUPE_LOCK;
                return false;

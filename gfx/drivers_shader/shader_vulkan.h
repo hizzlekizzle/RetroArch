@@ -122,6 +122,9 @@ void vulkan_filter_chain_set_input_texture(vulkan_filter_chain_t *chain,
 void vulkan_filter_chain_set_frame_count(vulkan_filter_chain_t *chain,
       uint64_t count);
 
+void vulkan_filter_chain_set_swap_count(vulkan_filter_chain_t *chain,
+      uint64_t count);
+
 void vulkan_filter_chain_set_frame_count_period(vulkan_filter_chain_t *chain,
       unsigned pass,
       unsigned period);

@@ -103,6 +103,7 @@ struct shader_uniforms
    int final_vp_size;
 
    int frame_count;
+    int swap_count;
    int frame_direction;
    int frame_time_delta;
    float original_fps;
@@ -754,6 +755,7 @@ static void gl_glsl_find_uniforms(glsl_shader_data_t *glsl,
    uni->final_vp_size    = gl_glsl_get_uniform(glsl, prog, "FinalViewportSize");
 
    uni->frame_count      = gl_glsl_get_uniform(glsl, prog, "FrameCount");
+    uni->swap_count       = gl_glsl_get_uniform(glsl, prog, "SwapCount");
    uni->frame_direction  = gl_glsl_get_uniform(glsl, prog, "FrameDirection");
    uni->frame_time_delta = gl_glsl_get_uniform(glsl, prog, "FrameTimeDelta");
    uni->original_fps         = gl_glsl_get_uniform(glsl, prog, "OriginalFPS");
@@ -1336,6 +1338,7 @@ static void gl_glsl_set_params(void *dat, void *shader_data)
    unsigned out_width                         = params->out_width;
    unsigned out_height                        = params->out_height;
    unsigned frame_count                       = params->frame_counter;
+    unsigned swap_count                        = params->swap_counter;
    const void *_info                          = params->info;
    const void *_prev_info                     = params->prev_info;
    const void *_feedback_info                 = params->feedback_info;
@@ -1390,6 +1393,8 @@ static void gl_glsl_set_params(void *dat, void *shader_data)
 
       glUniform1i(uni->frame_count, frame_count);
    }
+    if (uni->swap_count >= 0 && glsl->active_idx)
+       glUniform1i(uni->swap_count, swap_count);
 
    if (uni->frame_direction >= 0)
    {

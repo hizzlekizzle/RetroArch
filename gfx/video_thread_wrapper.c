@@ -475,7 +475,7 @@ static void video_thread_loop(void *data)
 
                ret = thr->driver->frame(thr->driver_data,
                   thr->frame.buffer, thr->frame.width, thr->frame.height,
-                  thr->frame.count, thr->frame.pitch,
+                  thr->frame.count, thr->frame.swap_count, thr->frame.pitch,
                   *thr->frame.msg ? thr->frame.msg : NULL,
                   &video_info);
 
@@ -586,7 +586,7 @@ static bool video_thread_has_windowed(void *data)
 }
 
 static bool video_thread_frame(void *data, const void *frame_,
-      unsigned width, unsigned height, uint64_t frame_count,
+      unsigned width, unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    thread_video_t *thr = (thread_video_t*)data;
@@ -602,7 +602,7 @@ static bool video_thread_frame(void *data, const void *frame_,
 
       if (thr->driver_data && thr->driver && thr->driver->frame)
          return thr->driver->frame(thr->driver_data, frame_,
-            width, height, frame_count, pitch, msg, video_info);
+            width, height, frame_count, swap_count, pitch, msg, video_info);
 
       return false;
    }
@@ -649,6 +649,7 @@ static bool video_thread_frame(void *data, const void *frame_,
       thr->frame.width   = width;
       thr->frame.height  = height;
       thr->frame.count   = frame_count;
+      thr->frame.swap_count = swap_count;
       thr->frame.pitch   = copy_stride;
 
       if (msg)

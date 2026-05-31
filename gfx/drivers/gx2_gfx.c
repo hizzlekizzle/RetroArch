@@ -1983,7 +1983,7 @@ static void gx2_update_uniform_block(wiiu_video_t *wiiu,
 }
 
 static bool gx2_frame(void *data, const void *frame,
-      unsigned width, unsigned height, uint64_t frame_count,
+      unsigned width, unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    uint32_t i;

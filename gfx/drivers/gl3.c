@@ -63,6 +63,8 @@
 #include "../gfx_widgets.h"
 #endif
 
+#include "../video_driver.h"
+
 #define GL3_SET_TEXTURE_COORDS(coords, xamt, yamt) \
    coords[2] = xamt; \
    coords[6] = xamt; \
@@ -3827,7 +3829,7 @@ static void gl3_renderchain_start_render(
 
 static void gl3_renderchain_render(
       gl3_t *gl,
-      uint64_t frame_count,
+      uint64_t frame_count, uint64_t swap_count,
       const struct video_tex_info *tex_info,
       const struct video_tex_info *feedback_info)
 {
@@ -3895,6 +3897,7 @@ static void gl3_renderchain_render(
       params.out_width     = gl->vp.width;
       params.out_height    = gl->vp.height;
       params.frame_counter = (unsigned int)frame_count;
+      params.swap_counter  = (unsigned int)swap_count;
       params.info          = tex_info;
       params.prev_info     = gl->chain.prev_info;
       params.feedback_info = feedback_info;
@@ -3959,6 +3962,7 @@ static void gl3_renderchain_render(
    params.out_width     = gl->vp.width;
    params.out_height    = gl->vp.height;
    params.frame_counter = (unsigned int)frame_count;
+   params.swap_counter  = (unsigned int)swap_count;
    params.info          = tex_info;
    params.prev_info     = gl->chain.prev_info;
    params.feedback_info = feedback_info;
@@ -3981,7 +3985,7 @@ static void gl3_renderchain_render(
 
 static bool gl3_frame(void *data, const void *frame,
       unsigned frame_width, unsigned frame_height,
-      uint64_t frame_count,
+      uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg,
       video_frame_info_t *video_info)
 {
@@ -4221,6 +4225,7 @@ static bool gl3_frame(void *data, const void *frame,
       params.out_width     = gl->vp.width;
       params.out_height    = gl->vp.height;
       params.frame_counter = (unsigned int)frame_count;
+      params.swap_counter  = (unsigned int)swap_count;
       params.info          = &gl->chain.tex_info;
       params.prev_info     = gl->chain.prev_info;
       params.feedback_info = &feedback_info;
@@ -4241,7 +4246,7 @@ static bool gl3_frame(void *data, const void *frame,
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
       if (gl->chain.num_fbo_passes != 0)
-         gl3_renderchain_render(gl, frame_count, &gl->chain.tex_info, &feedback_info);
+         gl3_renderchain_render(gl, frame_count, swap_count, &gl->chain.tex_info, &feedback_info);
 
       memmove(gl->chain.prev_info + 1, gl->chain.prev_info, sizeof(*gl->chain.prev_info) * (gl->chain.num_prev_textures - 1));
       memcpy(&gl->chain.prev_info[0], &gl->chain.tex_info, sizeof(gl->chain.tex_info));
@@ -4281,6 +4286,7 @@ static bool gl3_frame(void *data, const void *frame,
          filter_chain = gl->filter_chain_default;
 
       gl3_filter_chain_set_frame_count(filter_chain, frame_count);
+       gl3_filter_chain_set_swap_count(filter_chain, swap_count);
 #ifdef HAVE_REWIND
       gl3_filter_chain_set_frame_direction(filter_chain, state_manager_frame_is_reversed() ? -1 : 1);
 #else
@@ -4429,7 +4435,11 @@ static bool gl3_frame(void *data, const void *frame,
    }
 
    if (gl->ctx_driver->swap_buffers)
-      gl->ctx_driver->swap_buffers(gl->ctx_data);
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       gl->ctx_driver->swap_buffers(gl->ctx_data);
+       video_st->swap_count++;
+    }
 
  /* Emscripten has to do black frame insertion in its main loop */
 #ifndef EMSCRIPTEN
@@ -4457,7 +4467,7 @@ static bool gl3_frame(void *data, const void *frame,
 
          while (bfi_light_frames > 0)
          {
-            if (!(gl3_frame(gl, NULL, 0, 0, frame_count, 0, msg, video_info)))
+            if (!(gl3_frame(gl, NULL, 0, 0, frame_count, 0, 0, msg, video_info)))
             {
                gl->flags &= ~GL3_FLAG_FRAME_DUPE_LOCK;
                return false;
@@ -4475,7 +4485,11 @@ static bool gl3_frame(void *data, const void *frame,
             glClear(GL_COLOR_BUFFER_BIT);
 
             if (gl->ctx_driver->swap_buffers)
+            {
+               video_driver_state_t *video_st = video_state_get_ptr();
                gl->ctx_driver->swap_buffers(gl->ctx_data);
+               video_st->swap_count++;
+            }
          }
       }
    }
@@ -4506,7 +4520,7 @@ static bool gl3_frame(void *data, const void *frame,
          }
 #endif
 
-         if (!gl3_frame(gl, NULL, 0, 0, frame_count, 0, msg,
+         if (!gl3_frame(gl, NULL, 0, 0, frame_count, 0, 0, msg,
                   video_info))
          {
             gl->flags &= ~GL3_FLAG_FRAME_DUPE_LOCK;

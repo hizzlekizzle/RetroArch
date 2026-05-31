@@ -5064,7 +5064,7 @@ void video_driver_frame(const void *data, unsigned width,
       video_info.current_subframe = 0;
       if (vid->frame(
                video_st->data, data, width, height,
-               video_st->frame_count, (unsigned)pitch,
+               video_st->frame_count, video_st->swap_count, (unsigned)pitch,
 #if HAVE_MENU
                   ((video_info.menu_st_flags & MENU_ST_FLAG_SCREENSAVER_ACTIVE) > 0)
                || video_info.notifications_hidden

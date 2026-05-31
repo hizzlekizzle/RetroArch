@@ -1923,7 +1923,7 @@ static void* ctr_init(const video_info_t* video,
 
 static bool ctr_frame(void* data, const void* frame,
       unsigned width, unsigned height,
-      uint64_t frame_count,
+      uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char* msg, video_frame_info_t *video_info)
 {
    static uint64_t current_tick, last_tick;

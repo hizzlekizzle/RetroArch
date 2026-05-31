@@ -106,6 +106,10 @@ void gl3_filter_chain_set_frame_count(
       gl3_filter_chain_t *chain,
       uint64_t count);
 
+void gl3_filter_chain_set_swap_count(
+      gl3_filter_chain_t *chain,
+      uint64_t count);
+
 void gl3_filter_chain_set_frame_count_period(
       gl3_filter_chain_t *chain,
       unsigned pass,

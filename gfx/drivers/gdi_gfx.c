@@ -2566,7 +2566,7 @@ error:
 }
 
 static bool gdi_frame(void *data, const void *frame,
-      unsigned frame_width, unsigned frame_height, uint64_t frame_count,
+      unsigned frame_width, unsigned frame_height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    struct bitmap_info info;

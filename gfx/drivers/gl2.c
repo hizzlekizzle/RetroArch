@@ -69,6 +69,8 @@
 
 #include "../font_driver.h"
 
+#include "../video_driver.h"
+
 #ifdef HAVE_GLSL
 #include "../drivers_shader/shader_glsl.h"
 #endif
@@ -1480,7 +1482,7 @@ static void gl2_set_viewport(gl2_t *gl,
 static void gl2_renderchain_render(
       gl2_t *gl,
       gl2_renderchain_data_t *chain,
-      uint64_t frame_count,
+      uint64_t frame_count, uint64_t swap_count,
       const struct video_tex_info *tex_info,
       const struct video_tex_info *feedback_info,
       bool video_scale_integer)
@@ -1551,6 +1553,7 @@ static void gl2_renderchain_render(
       params.out_width     = gl->vp.width;
       params.out_height    = gl->vp.height;
       params.frame_counter = (unsigned int)frame_count;
+       params.swap_counter  = (unsigned int)swap_count;
       params.info          = tex_info;
       params.prev_info     = gl->prev_info;
       params.feedback_info = feedback_info;
@@ -1617,6 +1620,7 @@ static void gl2_renderchain_render(
    params.out_width     = gl->vp.width;
    params.out_height    = gl->vp.height;
    params.frame_counter = (unsigned int)frame_count;
+       params.swap_counter  = (unsigned int)swap_count;
    params.info          = tex_info;
    params.prev_info     = gl->prev_info;
    params.feedback_info = feedback_info;
@@ -3562,7 +3566,7 @@ static void gl2_pbo_async_readback(gl2_t *gl)
 
 static bool gl2_frame(void *data, const void *frame,
       unsigned frame_width, unsigned frame_height,
-      uint64_t frame_count,
+      uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg,
       video_frame_info_t *video_info)
 {
@@ -3779,7 +3783,7 @@ static bool gl2_frame(void *data, const void *frame,
    if (gl->flags & GL2_FLAG_FBO_INITED)
       gl2_renderchain_render(gl,
             chain,
-            frame_count, &gl->tex_info, &feedback_info,
+            frame_count, swap_count, &gl->tex_info, &feedback_info,
             video_scale_integer);
 
 #ifdef EMSCRIPTEN
@@ -3869,7 +3873,11 @@ static bool gl2_frame(void *data, const void *frame,
    }
 
     if (gl->ctx_driver->swap_buffers)
-        gl->ctx_driver->swap_buffers(gl->ctx_data);
+    {
+       video_driver_state_t *video_st = video_state_get_ptr();
+       gl->ctx_driver->swap_buffers(gl->ctx_data);
+       video_st->swap_count++;
+    }
 
  /* Emscripten has to do black frame insertion in its main loop */
 #ifndef EMSCRIPTEN
@@ -3899,7 +3907,7 @@ static bool gl2_frame(void *data, const void *frame,
 
          while (bfi_light_frames > 0)
          {
-            if (!(gl2_frame(gl, NULL, 0, 0, frame_count, 0, msg, video_info)))
+            if (!(gl2_frame(gl, NULL, 0, 0, frame_count, 0, 0, msg, video_info)))
             {
                gl->flags &= ~GL2_FLAG_FRAME_DUPE_LOCK;
                return false;
@@ -3917,7 +3925,11 @@ static bool gl2_frame(void *data, const void *frame,
             glClear(GL_COLOR_BUFFER_BIT);
 
             if (gl->ctx_driver->swap_buffers)
+            {
+               video_driver_state_t *video_st = video_state_get_ptr();
                gl->ctx_driver->swap_buffers(gl->ctx_data);
+               video_st->swap_count++;
+            }
          }
       }
    }

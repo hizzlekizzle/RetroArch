@@ -563,6 +563,7 @@ struct CommonResources
     * read by every pass in build_semantics().  Eliminates N per-pass
     * copies of identical data and the O(passes) broadcast loops. */
    uint64_t frame_count        = 0;
+    uint64_t swap_count         = 0;
    int32_t frame_direction     = 1;
    uint32_t frame_time_delta   = 0;
    float original_fps          = 0;
@@ -629,6 +630,7 @@ class Pass
 
       void notify_sync_index(unsigned index) { sync_index = index; }
       void set_frame_count(uint64_t count) { frame_count = count; }
+       void set_swap_count(uint64_t count) { swap_count = count; }
       void set_frame_count_period(unsigned p) { frame_count_period = p; }
 
       void set_name(const char *name) { pass_name = name; }
@@ -725,6 +727,7 @@ class Pass
             unsigned &write_count);
 
       uint64_t frame_count        = 0;   /* shadow: may differ from common due to frame_count_period */
+       uint64_t swap_count         = 0;
       unsigned frame_count_period = 0;
       unsigned pass_number        = 0;
       
@@ -788,6 +791,7 @@ struct vulkan_filter_chain
       void end_frame(VkCommandBuffer cmd);
 
       void set_frame_count(uint64_t count);
+       void set_swap_count(uint64_t count);
       void set_frame_count_period(unsigned pass, unsigned period);
       void set_shader_subframes(uint32_t total_subframes);
       void set_current_shader_subframe(uint32_t current_subframe);
@@ -2138,6 +2142,13 @@ void vulkan_filter_chain::set_frame_count(uint64_t count)
    for (i = 0; i < passes.size(); i++)
       passes[i]->set_frame_count(count);
 }
+void vulkan_filter_chain::set_swap_count(uint64_t count)
+{
+   common.swap_count = count;
+   unsigned i;
+   for (i = 0; i < passes.size(); i++)
+      passes[i]->set_swap_count(count);
+}
 
 void vulkan_filter_chain::set_frame_count_period(
       unsigned pass, unsigned period)
@@ -3198,6 +3209,7 @@ void Pass::build_semantics(VkDescriptorSet set, uint8_t *buffer,
                        frame_count_period
                        ? uint32_t(frame_count % frame_count_period)
                        : uint32_t(frame_count));
+    build_semantic_uint(buffer, SLANG_SEMANTIC_SWAP_COUNT, uint32_t(swap_count));
 
    build_semantic_int(buffer, SLANG_SEMANTIC_FRAME_DIRECTION,
                       common->frame_direction);
@@ -4235,6 +4247,12 @@ void vulkan_filter_chain_set_frame_count(
       uint64_t count)
 {
    chain->set_frame_count(count);
+}
+void vulkan_filter_chain_set_swap_count(
+      vulkan_filter_chain_t *chain,
+      uint64_t count)
+{
+   chain->set_swap_count(count);
 }
 
 void vulkan_filter_chain_set_frame_count_period(

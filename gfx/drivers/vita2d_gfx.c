@@ -704,7 +704,7 @@ static void vita2d_free_overlay(vita_video_t *vita)
 #endif
 
 static bool vita2d_frame(void *data, const void *frame,
-      unsigned width, unsigned height, uint64_t frame_count,
+      unsigned width, unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    void *tex_p;

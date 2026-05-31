@@ -481,7 +481,7 @@ static void *psp_init(const video_info_t *video,
 }
 
 static bool psp_frame(void *data, const void *frame,
-      unsigned width, unsigned height, uint64_t frame_count,
+      unsigned width, unsigned height, uint64_t frame_count, uint64_t swap_count,
       unsigned pitch, const char *msg, video_frame_info_t *video_info)
 {
    psp1_video_t *psp  = (psp1_video_t*)data;
