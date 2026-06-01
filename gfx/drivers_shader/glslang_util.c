@@ -276,26 +276,30 @@ enum slang_texture_semantic slang_name_to_texture_semantic_array(
 static const char _define_originalaspect[] = "#define _HAS_ORIGINALASPECT_UNIFORMS";
 static const char _define_frametime[]      = "#define _HAS_FRAMETIME_UNIFORMS";
 static const char _define_sensor[]         = "#define _HAS_SENSOR_UNIFORMS";
+static const char _define_swapcount[]      = "#define _HAS_SWAPCOUNT_UNIFORM";
 static const char _ext_line_directive[]    = "#extension GL_GOOGLE_cpp_style_line_directive : require";
 
 #define DEFINE_ORIGINALASPECT_LEN (sizeof(_define_originalaspect) - 1)
 #define DEFINE_FRAMETIME_LEN      (sizeof(_define_frametime) - 1)
 #define DEFINE_SENSOR_LEN         (sizeof(_define_sensor) - 1)
+#define DEFINE_SWAPCOUNT_LEN      (sizeof(_define_swapcount) - 1)
 #define EXT_LINE_DIRECTIVE_LEN    (sizeof(_ext_line_directive) - 1)
 
 static bool emit_feature_defines(struct shader_line_buf *output)
 {
-   static const char *const lines[3] = {
+   static const char *const lines[4] = {
       _define_originalaspect,
       _define_frametime,
-      _define_sensor
+      _define_sensor,
+      _define_swapcount
    };
-   static const size_t lens[3] = {
+   static const size_t lens[4] = {
       DEFINE_ORIGINALASPECT_LEN,
       DEFINE_FRAMETIME_LEN,
-      DEFINE_SENSOR_LEN
+      DEFINE_SENSOR_LEN,
+      DEFINE_SWAPCOUNT_LEN
    };
-   return shader_line_buf_append_batch(output, lines, lens, 3);
+   return shader_line_buf_append_batch(output, lines, lens, 4);
 }
 
 /* Build a "#line N \"file\"" directive into tmp using a precomputed suffix.

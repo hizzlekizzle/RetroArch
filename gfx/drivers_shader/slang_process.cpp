@@ -472,6 +472,8 @@ static std::string build_stage_source(
    /* Version header (line 0). */
    str.append(shader_line_buf_get(lines, 0));
    str.append("\n");
+   /* Define capability flags */
+   str.append("#define _HAS_SWAPCOUNT_UNIFORM\n");
    for (i = 1; i < lines->num_lines; i++)
    {
       const char *line = shader_line_buf_get(lines, i);
