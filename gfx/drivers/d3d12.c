@@ -4741,6 +4741,7 @@ static bool d3d12_gfx_frame(
       unsigned            width,
       unsigned            height,
       uint64_t            frame_count,
+      uint64_t            swap_count,
       unsigned            pitch,
       const char*         msg,
       video_frame_info_t* video_info)
@@ -6064,7 +6065,7 @@ static bool d3d12_gfx_frame(
          d3d12->flags |= D3D12_ST_FLAG_FRAME_DUPE_LOCK;
          while (bfi_light_frames > 0)
          {
-            if (!(d3d12_gfx_frame(d3d12, NULL, 0, 0, frame_count, 0, msg, video_info)))
+            if (!(d3d12_gfx_frame(d3d12, NULL, 0, 0, frame_count, swap_count, 0, msg, video_info)))
             {
                d3d12->flags &= ~D3D12_ST_FLAG_FRAME_DUPE_LOCK;
                return false;
@@ -6108,7 +6109,7 @@ static bool d3d12_gfx_frame(
                d3d12->pass[m].total_subframes = video_info->shader_subframes;
                d3d12->pass[m].current_subframe = k+1;
             }
-         if (!d3d12_gfx_frame(d3d12, NULL, 0, 0, frame_count, 0, msg,
+         if (!d3d12_gfx_frame(d3d12, NULL, 0, 0, frame_count, swap_count, 0, msg,
                   video_info))
          {
             d3d12->flags &= ~D3D12_ST_FLAG_FRAME_DUPE_LOCK;

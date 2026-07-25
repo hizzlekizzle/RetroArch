@@ -7671,7 +7671,7 @@ static void d3d9_hlsl_free(void *data)
 
 static bool d3d9_hlsl_frame(void *data, const void *frame,
       unsigned frame_width, unsigned frame_height,
-      uint64_t frame_count, unsigned pitch,
+      uint64_t frame_count, uint64_t swap_count, unsigned pitch,
       const char *msg, video_frame_info_t *video_info)
 {
    D3DVIEWPORT9 screen_vp;
@@ -7693,6 +7693,8 @@ static bool d3d9_hlsl_frame(void *data, const void *frame,
 #ifdef HAVE_GFX_WIDGETS
    bool widgets_active                 = video_info->widgets_active;
 #endif
+
+   (void)swap_count;
 
    if (!frame)
       return true;
@@ -7761,12 +7763,12 @@ static bool d3d9_hlsl_frame(void *data, const void *frame,
             video_st->swap_count++;
          }
 #else
-        bool ret = (IDirect3DDevice9_Present(d3d->dev,
-         {
-            video_driver_state_t *video_st = video_state_get_ptr();
-            video_st->swap_count++;
-         }
-                 NULL, NULL, NULL, NULL) != D3DERR_DEVICELOST);
+        bool ret = (IDirect3DDevice9_Present(d3d->dev, NULL, NULL, NULL, NULL)
+               != D3DERR_DEVICELOST);
+        {
+           video_driver_state_t *video_st = video_state_get_ptr();
+           video_st->swap_count++;
+        }
 #endif
         if (!ret || d3d->needs_restore)
           return true;
