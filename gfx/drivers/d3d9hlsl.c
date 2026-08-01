@@ -2275,7 +2275,8 @@ static void d3d9_hlsl_renderchain_render_pass(
       unsigned pass_index,
       unsigned width, unsigned height,
       D3DVIEWPORT9 *vp,
-      unsigned rotation)
+      unsigned rotation,
+      uint64_t swap_count)
 {
    unsigned i;
    const hlsl_pass_data_t *pd = NULL;
@@ -2943,7 +2944,7 @@ static void hlsl_d3d9_renderchain_render(
             chain, from_pass,
             i + 1,
             current_width, current_height,
-            &viewport, 0);
+            &viewport, 0, swap_count);
 
       current_width  = out_width;
       current_height = out_height;
@@ -2986,7 +2987,7 @@ static void hlsl_d3d9_renderchain_render(
          chain, last_pass,
          chain->chain.passes->count,
          current_width, current_height,
-         chain->chain.out_vp, rotation);
+         chain->chain.out_vp, rotation, swap_count);
 
    chain->chain.frame_count++;
 
