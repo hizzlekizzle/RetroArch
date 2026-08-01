@@ -268,6 +268,7 @@ typedef struct
       D3D10_VIEWPORT             viewport;
       pass_semantics_t           semantics;
       uint32_t                   frame_count;
+      uint32_t                   swap_count;
       int32_t                    frame_direction;
       uint32_t                   frame_time_delta;
       float                      original_fps;
@@ -2053,6 +2054,7 @@ static bool d3d10_gfx_set_shader(void* data,
             &d3d10->pass[i].rt.size_data,    /* OutputSize */
             &d3d10->frame.output_size,       /* FinalViewportSize */
             &d3d10->pass[i].frame_count,     /* FrameCount */
+            &d3d10->pass[i].swap_count,      /* SwapCount */
             &d3d10->pass[i].frame_direction, /* FrameDirection */
             &d3d10->pass[i].frame_time_delta,/* FrameTimeDelta */
             &d3d10->pass[i].original_fps,    /* OriginalFPS */
@@ -2884,6 +2886,7 @@ static bool d3d10_gfx_frame(
    UINT offset = 0, stride    = 0;
    d3d10_texture_t*   texture = NULL;
    d3d10_video_t      * d3d10 = (d3d10_video_t*)data;
+   video_driver_state_t *video_st = video_state_get_ptr();
    D3D10Device       context  = d3d10->device;
    unsigned video_width       = video_info->width;
    unsigned video_height      = video_info->height;
@@ -2897,6 +2900,7 @@ static bool d3d10_gfx_frame(
 #else
    bool menu_is_alive         = false;
 #endif
+   (void)swap_count;
    bool overlay_behind_menu   = video_info->overlay_behind_menu;
    unsigned black_frame_insertion = video_info->black_frame_insertion;
    int bfi_light_frames;
@@ -3049,6 +3053,7 @@ static bool d3d10_gfx_frame(
                frame_count % d3d10->shader_preset->pass[i].frame_count_mod;
          else
             d3d10->pass[i].frame_count   = frame_count;
+         d3d10->pass[i].swap_count    = (uint32_t)video_st->swap_count;
 
 #ifdef HAVE_REWIND
          d3d10->pass[i].frame_direction  = state_manager_frame_is_reversed()

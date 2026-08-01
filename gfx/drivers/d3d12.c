@@ -417,6 +417,7 @@ typedef struct
       D3D12_RECT                      scissorRect;
       pass_semantics_t                semantics;
       uint32_t                        frame_count;
+      uint32_t                        swap_count;
       int32_t                         frame_direction;
       uint32_t                        frame_time_delta;
       float                           original_fps;
@@ -2529,6 +2530,7 @@ static bool d3d12_shader_load_step(void *data,
                &d3d12->pass[i].rt.size_data,
                &d3d12->frame.output_size,
                &d3d12->pass[i].frame_count,
+               &d3d12->pass[i].swap_count,
                &d3d12->pass[i].frame_direction,
                &d3d12->pass[i].frame_time_delta,
                &d3d12->pass[i].original_fps,
@@ -4759,6 +4761,7 @@ static bool d3d12_gfx_frame(
       &video_info->osd_stat_params;
    bool menu_is_alive             = (video_info->menu_st_flags & MENU_ST_FLAG_ALIVE) ? true : false;
    bool overlay_behind_menu       = video_info->overlay_behind_menu;
+   (void)swap_count;
    unsigned black_frame_insertion = video_info->black_frame_insertion;
    int bfi_light_frames;
    unsigned n;
@@ -5239,6 +5242,7 @@ static bool d3d12_gfx_frame(
                d3d12->pass[i].frame_count = frame_count % d3d12->shader_preset->pass[i].frame_count_mod;
             else
                d3d12->pass[i].frame_count = frame_count;
+            d3d12->pass[i].swap_count    = (uint32_t)video_st->swap_count;
 
             d3d12->pass[i].frame_direction  = pass_frame_direction;
             d3d12->pass[i].frame_time_delta = pass_frame_time_delta;

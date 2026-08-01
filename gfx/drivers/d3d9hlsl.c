@@ -503,6 +503,7 @@ typedef struct hlsl_uniform_map
    int texture_size;
    int output_size;
    int frame_count;
+   int swap_count;
    int orig_video_size;
    int orig_texture_size;
    int orig_texture;
@@ -538,6 +539,7 @@ static void hlsl_uniform_map_from_bytecode(
    map->texture_size = d3d9_hlsl_ctab_find_register(bytecode, bytecode_dwords, "IN.texture_size", NULL, NULL);
    map->output_size  = d3d9_hlsl_ctab_find_register(bytecode, bytecode_dwords, "IN.output_size", NULL, NULL);
    map->frame_count  = d3d9_hlsl_ctab_find_register(bytecode, bytecode_dwords, "IN.frame_count", NULL, NULL);
+   map->swap_count   = d3d9_hlsl_ctab_find_register(bytecode, bytecode_dwords, "IN.swap_count", NULL, NULL);
 
    /* If individual IN.* lookups failed, check if the struct is
     * registered as a single "IN" entry. D3DCompile packs struct
@@ -564,6 +566,13 @@ static void hlsl_uniform_map_from_bytecode(
             map->texture_size = in_reg + 1;
             map->output_size  = in_reg + 2;
             map->frame_count  = (in_cnt >= 4) ? in_reg + 3 : in_reg + 2;
+            if (map->swap_count < 0)
+            {
+               if (in_cnt >= 5)
+                  map->swap_count = in_reg + 4;
+               else if (in_cnt == 4)
+                  map->swap_count = in_reg + 3;
+            }
          }
          else
          {
@@ -574,6 +583,8 @@ static void hlsl_uniform_map_from_bytecode(
             map->texture_size = in_reg;
             map->output_size  = in_reg + 1;
             map->frame_count  = in_reg + 1;
+            if (map->swap_count < 0 && in_cnt >= 4)
+               map->swap_count = in_reg + 2;
          }
       }
    }
@@ -2477,6 +2488,18 @@ static void d3d9_hlsl_renderchain_render_pass(
                d3d9_hlsl_set_vs_const(chain->chain.dev, pd->vs_map.frame_count,  fc4, 1);
             }
          }
+
+         /* Upload swap_count if defined */
+         if (pd->ps_map.swap_count >= 0)
+         {
+            float sc4[4] = { (float)swap_count, 0.0f, 0.0f, 0.0f };
+            d3d9_hlsl_set_ps_const(chain->chain.dev, pd->ps_map.swap_count, sc4, 1);
+         }
+         if (pd->vs_map.swap_count >= 0)
+         {
+            float sc4[4] = { (float)swap_count, 0.0f, 0.0f, 0.0f };
+            d3d9_hlsl_set_vs_const(chain->chain.dev, pd->vs_map.swap_count, sc4, 1);
+         }
       }
 
       /* Bind ORIG texture */
@@ -2806,7 +2829,8 @@ static void hlsl_d3d9_renderchain_render(
       d3d9_video_t *d3d,
       const void *frame,
       unsigned width, unsigned height,
-      unsigned pitch, unsigned rotation)
+      unsigned pitch, unsigned rotation,
+      uint64_t swap_count)
 {
    LPDIRECT3DSURFACE9 back_buffer = NULL;
    LPDIRECT3DSURFACE9 target;
@@ -7748,7 +7772,7 @@ static bool d3d9_hlsl_frame(void *data, const void *frame,
          (const float*)&d3d->mvp, 4);
    hlsl_d3d9_renderchain_render(
          d3d, frame, frame_width, frame_height,
-         pitch, d3d->dev_rotation);
+         pitch, d3d->dev_rotation, swap_count);
 
    if (black_frame_insertion && !d3d->menu->enabled)
    {

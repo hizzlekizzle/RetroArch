@@ -2821,7 +2821,7 @@ static void d3d8_get_overlay_interface(void *data,
 
 static bool d3d8_frame(void *data, const void *frame,
       unsigned frame_width, unsigned frame_height,
-      uint64_t frame_count, unsigned pitch,
+      uint64_t frame_count, uint64_t swap_count, unsigned pitch,
       const char *msg, video_frame_info_t *video_info)
 {
    D3DVIEWPORT8 screen_vp;
@@ -2837,6 +2837,7 @@ static bool d3d8_frame(void *data, const void *frame,
 #ifdef HAVE_GFX_WIDGETS
    bool widgets_active                 = video_info->widgets_active;
 #endif
+   (void)swap_count;
 #ifdef HAVE_MENU
    bool menu_is_alive                  = (video_info->menu_st_flags & MENU_ST_FLAG_ALIVE) ? true : false;
 #endif

@@ -404,7 +404,8 @@ typedef struct
       d3d11_texture_t            feedback;
       D3D11_VIEWPORT             viewport;
       pass_semantics_t           semantics;
-      uint32_t                   frame_count;
+      uint64_t                   frame_count;
+      uint64_t                   swap_count;
       int32_t                    frame_direction;
       uint32_t                   frame_time_delta;
       float                      original_fps;
@@ -2252,6 +2253,7 @@ static bool d3d11_shader_load_step(void *data,
                &d3d11->pass[i].rt.size_data,
                &d3d11->frame.output_size,
                &d3d11->pass[i].frame_count,
+               &d3d11->pass[i].swap_count,
                &d3d11->pass[i].frame_direction,
                &d3d11->pass[i].frame_time_delta,
                &d3d11->pass[i].original_fps,
@@ -2581,6 +2583,7 @@ static bool d3d11_gfx_set_shader(void* data, enum rarch_shader_type type, const 
             &d3d11->pass[i].rt.size_data,    /* OutputSize */
             &d3d11->frame.output_size,       /* FinalViewportSize */
             &d3d11->pass[i].frame_count,     /* FrameCount */
+            &d3d11->pass[i].swap_count,      /* SwapCount */
             &d3d11->pass[i].frame_direction, /* FrameDirection */
             &d3d11->pass[i].frame_time_delta,/* FrameTimeDelta */
             &d3d11->pass[i].original_fps,    /* OriginalFPS */
@@ -3929,6 +3932,7 @@ static bool d3d11_gfx_frame(
    D3D11RenderTargetView rtv      = NULL;
    d3d11_video_t* d3d11           = (d3d11_video_t*)data;
    D3D11DeviceContext context     = d3d11->context;
+   video_driver_state_t *video_st = video_state_get_ptr();
    bool vsync                     = (d3d11->flags & D3D11_ST_FLAG_VSYNC) ? true : false;
    unsigned present_flags         = (!vsync && (d3d11->flags & D3D11_ST_FLAG_HAS_ALLOW_TEARING))
          ? DXGI_PRESENT_ALLOW_TEARING : 0;
@@ -4269,6 +4273,8 @@ static bool d3d11_gfx_frame(
             d3d11->pass[i].frame_count = frame_count % d3d11->shader_preset->pass[i].frame_count_mod;
          else
             d3d11->pass[i].frame_count = frame_count;
+         
+         d3d11->pass[i].swap_count = video_st->swap_count;
 
 #ifdef HAVE_REWIND
          d3d11->pass[i].frame_direction  = state_manager_frame_is_reversed() ? -1 : 1;
@@ -4902,6 +4908,7 @@ static bool d3d11_gfx_frame(
     {
        video_driver_state_t *video_st = video_state_get_ptr();
        video_st->swap_count++;
+       RARCH_LOG("swap_count = %u\n", video_st->swap_count);
     }
 
    if (vsync && d3d11->wait_for_vblank > 0)
@@ -4948,6 +4955,7 @@ static bool d3d11_gfx_frame(
              {
                 video_driver_state_t *video_st = video_state_get_ptr();
                 video_st->swap_count++;
+                RARCH_LOG("swap_count = %u\n", video_st->swap_count);
              }
          }
       }
