@@ -2551,6 +2551,7 @@ static bool d3d12_shader_load_step(void *data,
             }
          };
 
+      semantics_map.uniforms[SLANG_SEMANTIC_SWAP_COUNT] = &d3d12->pass[i].swap_count;
          if (!slang_process(
                   ds->shader_preset, i, RARCH_SHADER_HLSL, 50,
                   &semantics_map, &ds->passes[i].semantics))
@@ -2560,6 +2561,30 @@ static bool d3d12_shader_load_step(void *data,
             deferred->state      = SHADER_LOAD_FAILED;
             deferred->driver_data = NULL;
             return false;
+         }
+
+         /* Debug: verify SwapCount reflection & mapping in deferred pass semantics */
+         {
+            int _cb;
+            for (_cb = 0; _cb < SLANG_CBUFFER_MAX; _cb++)
+            {
+               cbuffer_sem_t* _cbsem = &ds->passes[i].semantics.cbuffers[_cb];
+               if (!_cbsem->uniforms)
+                  continue;
+               uniform_sem_t* _u = _cbsem->uniforms;
+               while (_u->size)
+               {
+                  if (!strcmp(_u->id, "SwapCount"))
+                  {
+                     uint32_t _val = 0;
+                     if (_u->data)
+                        _val = *(uint32_t*)_u->data;
+                     RARCH_WARN("[D3D12] deferred pass %d cbuffer %d uniform '%s' offset %u size %u data %p value %u\n",
+                           i, _cb, _u->id, _u->offset, _u->size, _u->data, _val);
+                  }
+                  _u++;
+               }
+            }
          }
 
          /* Compile HLSL and create PSO */
@@ -2905,6 +2930,9 @@ static bool d3d12_gfx_set_shader(void* data, enum rarch_shader_type type, const 
          }
       };
       /* clang-format on */
+
+      /* Ensure SwapCount pointer is set at correct semantic index */
+      semantics_map.uniforms[SLANG_SEMANTIC_SWAP_COUNT] = &d3d12->pass[i].swap_count;
 
       if (!slang_process(
                d3d12->shader_preset, i, RARCH_SHADER_HLSL, 50, &semantics_map,
@@ -5295,13 +5323,26 @@ static bool d3d12_gfx_frame(
 
                   D3D12Map(d3d12->pass[i].buffers[j], 0, &range,
                         (void**)&mapped_data);
+
                   while (uniform->size)
                   {
                      if (uniform->data)
-                        memcpy(mapped_data + uniform->offset,
-                              uniform->data, uniform->size);
+                        memcpy(mapped_data + uniform->offset, uniform->data, uniform->size);
                      uniform++;
                   }
+
+                  /* Dump first 16 bytes of mapped buffer for quick inspection */
+                  if (buffer_sem->size >= 16)
+                  {
+                     uint32_t _d0 = 0, _d1 = 0, _d2 = 0, _d3 = 0;
+                     memcpy(&_d0, mapped_data + 0, sizeof(_d0));
+                     memcpy(&_d1, mapped_data + 4, sizeof(_d1));
+                     memcpy(&_d2, mapped_data + 8, sizeof(_d2));
+                     memcpy(&_d3, mapped_data + 12, sizeof(_d3));
+                     RARCH_WARN("[D3D12] pass %d cbuffer %d mapped dump: %08x %08x %08x %08x\n",
+                           i, j, _d0, _d1, _d2, _d3);
+                  }
+
                   D3D12Unmap(d3d12->pass[i].buffers[j], 0, NULL);
 
                   cmd->lpVtbl->SetGraphicsRootConstantBufferView(

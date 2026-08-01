@@ -1849,6 +1849,7 @@ static bool d3d10_shader_load_step(void *data,
             }
          };
 
+      semantics_map.uniforms[SLANG_SEMANTIC_SWAP_COUNT] = &d3d10->pass[i].swap_count;
          if (!slang_process(
                   ds->shader_preset, i, RARCH_SHADER_HLSL,
                   40, &semantics_map,
@@ -2067,11 +2068,38 @@ static bool d3d10_gfx_set_shader(void* data,
       };
       /* clang-format on */
 
+      /* Ensure SwapCount pointer is set at correct semantic index */
+      semantics_map.uniforms[SLANG_SEMANTIC_SWAP_COUNT] = &d3d10->pass[i].swap_count;
+
       if (!slang_process(
                d3d10->shader_preset, i, RARCH_SHADER_HLSL,
                40, &semantics_map,
                &d3d10->pass[i].semantics))
          goto error;
+
+      /* Debug: verify SwapCount reflection & mapping */
+      {
+         int _cb;
+         for (_cb = 0; _cb < SLANG_CBUFFER_MAX; _cb++)
+         {
+            cbuffer_sem_t* _cbsem = &d3d10->pass[i].semantics.cbuffers[_cb];
+            if (!_cbsem->uniforms)
+               continue;
+            uniform_sem_t* _u = _cbsem->uniforms;
+            while (_u->size)
+            {
+               if (!strcmp(_u->id, "SwapCount"))
+               {
+                  uint32_t _val = 0;
+                  if (_u->data)
+                     _val = *(uint32_t*)_u->data;
+                  RARCH_WARN("[D3D10] pass %d cbuffer %d uniform '%s' offset %u size %u data %p value %u\n",
+                        i, _cb, _u->id, _u->offset, _u->size, _u->data, _val);
+               }
+               _u++;
+            }
+         }
+      }
 
       {
          static const D3D10_INPUT_ELEMENT_DESC desc[] = {

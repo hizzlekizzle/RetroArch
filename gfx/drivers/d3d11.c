@@ -2274,6 +2274,8 @@ static bool d3d11_shader_load_step(void *data,
             }
          };
 
+         /* Ensure SwapCount pointer is set at correct semantic index for deferred compilation */
+         semantics_map.uniforms[SLANG_SEMANTIC_SWAP_COUNT] = &d3d11->pass[i].swap_count;
          if (!slang_process(
                   ds->shader_preset, i, RARCH_SHADER_HLSL,
                   ds->shader_model, &semantics_map,
@@ -2605,10 +2607,12 @@ static bool d3d11_gfx_set_shader(void* data, enum rarch_shader_type type, const 
       };
       /* clang-format on */
 
+      /* Ensure SwapCount pointer is set at correct semantic index */
+      semantics_map.uniforms[SLANG_SEMANTIC_SWAP_COUNT] = &d3d11->pass[i].swap_count;
       if (!slang_process(
-               d3d11->shader_preset, i, RARCH_SHADER_HLSL, shader_model,
-               &semantics_map,
-               &d3d11->pass[i].semantics))
+              d3d11->shader_preset, i, RARCH_SHADER_HLSL, shader_model,
+              &semantics_map,
+              &d3d11->pass[i].semantics))
          goto error;
 
       {
@@ -4908,7 +4912,6 @@ static bool d3d11_gfx_frame(
     {
        video_driver_state_t *video_st = video_state_get_ptr();
        video_st->swap_count++;
-       RARCH_LOG("swap_count = %u\n", video_st->swap_count);
     }
 
    if (vsync && d3d11->wait_for_vblank > 0)
@@ -4955,7 +4958,6 @@ static bool d3d11_gfx_frame(
              {
                 video_driver_state_t *video_st = video_state_get_ptr();
                 video_st->swap_count++;
-                RARCH_LOG("swap_count = %u\n", video_st->swap_count);
              }
          }
       }
