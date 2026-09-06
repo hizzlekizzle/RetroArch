@@ -6,7 +6,7 @@ RetroArch is primarily written in C89. Preserve the existing language and style 
 
 - New C code must be C89-compatible unless the surrounding code explicitly requires otherwise.
 - Do not introduce C99/C11 features into C89 code.
-- Existing files written in C++, Objective-C, or another language should remain in that language.
+- Existing files written in C++, Objective-C, or another language may remain in that language unless directed otherwise.
 - Follow the conventions of surrounding code rather than introducing a new style.
 - Prefer the smallest change that completely solves the task.
 - Preserve existing architecture
